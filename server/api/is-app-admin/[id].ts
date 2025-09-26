@@ -2,7 +2,7 @@
  * @swagger
  * /api/is-app-admin/{id}:
  *   get:
- *     summary: Get AppAdmin by ID
+ *     summary: Check if a User is an AppAdmin
  *     tags:
  *       - AppAdmin
  *     parameters:
@@ -11,52 +11,18 @@
  *         required: true
  *         schema:
  *           type: integer
- *         description: AppAdmin ID
+ *         description: User ID
  *     responses:
  *       200:
- *         description: AppAdmin object with related users
+ *         description: Whether the user is an AppAdmin
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 id:
- *                   type: integer
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 username:
- *                   type: string
- *                 email:
- *                   type: string
- *                 password:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
- *                 users:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       firstName:
- *                         type: string
- *                       lastName:
- *                         type: string
- *                       email:
- *                         type: string
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
+ *                 isAdmin:
+ *                   type: boolean
+ *                   example: true
  */
 
 import { PrismaClient } from '@prisma/client'
@@ -68,10 +34,11 @@ export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
   if (isNaN(id)) return { isAdmin: false }
 
-  // Check if this user is an actual AppAdmin
-  const appAdmin = await prisma.appAdmin.findUnique({
+  // Look up the user and check if linked to AppAdmin
+  const user = await prisma.user.findUnique({
     where: { id },
+    select: { appAdminId: true },
   })
 
-  return { isAdmin: !!appAdmin }
+  return { isAdmin: !!user?.appAdminId }
 })

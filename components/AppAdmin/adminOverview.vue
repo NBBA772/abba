@@ -60,10 +60,10 @@
     </div>
 
     <!-- Conditional rendering -->
-     <ActiveInsuranceAgent v-if="viewMode === 'active'" />
+     <ActiveAdmin v-if="viewMode === 'active'" />
      <InviteAdmin v-else-if="viewMode === 'invite'" @close="viewMode = 'active'" />
-     <MassInviteInsuranceAgents v-else-if="viewMode === 'massInvite'" @close="viewMode = 'active'" />
-     <DeletedInsuranceAgent v-else />
+     <MassInviteAdmins v-else-if="viewMode === 'massInvite'" @close="viewMode = 'active'" />
+     <InactiveAdmins v-else />
     <!-- 
     <DeletedInsurance Agent v-else /> -->
   </div>
@@ -71,9 +71,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import ActiveInsuranceAgent from "./ActiveInsuranceAgent.vue";
-import DeletedInsuranceAgent from "./DeletedInsuranceAgent.vue";
-import MassInviteInsuranceAgents from "./MassInviteInsuranceAgents.vue";
 
 // import InviteEmployee from "./InviteEmployee.vue";
 // import ActiveInsuranceAgent from "./ActiveInsuranceAgent.vue";
