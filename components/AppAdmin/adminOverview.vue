@@ -9,7 +9,7 @@
 
     <!-- Header + Actions -->
     <div class="flex justify-between items-center py-6 relative">
-      <h2 class="text-4xl font-semibold">Agent Overview</h2>
+      <h2 class="text-4xl font-semibold">Admin Overview</h2>
 
       <!-- Actions Button -->
       <div class="relative">
@@ -61,7 +61,7 @@
 
     <!-- Conditional rendering -->
      <ActiveInsuranceAgent v-if="viewMode === 'active'" />
-     <InviteInsuranceAgent v-else-if="viewMode === 'invite'" @close="viewMode = 'active'" />
+     <InviteAdmin v-else-if="viewMode === 'invite'" @close="viewMode = 'active'" />
      <MassInviteInsuranceAgents v-else-if="viewMode === 'massInvite'" @close="viewMode = 'active'" />
      <DeletedInsuranceAgent v-else />
     <!-- 

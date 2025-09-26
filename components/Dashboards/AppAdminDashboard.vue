@@ -50,17 +50,28 @@
                 <div v-if="tab === 'employees'">
                   <EmployeeDetails :employee="selectedEmployee" />
                 </div>
-                <div v-else-if="tab === 'inactive'">
+                <!-- <div v-else-if="tab === 'inactive'">
                   <InactiveEmployees />
-                </div>
+                </div> -->
 
                 <div v-else-if="tab === 'insuranceAgents'">
+                  <InsuranceAgentDetails />
+                </div>
+
+                 <div v-else-if="tab === 'insuranceAgents'">
                   <InsuranceAgentDetails />
                 </div>
 
                 <div v-else-if="tab === 'auditTrailList'">
                   <AuditTrailList />
                 </div>
+
+
+                <div v-else-if="tab === 'adminOverview'">
+                  <adminOverview />
+                </div>
+
+
 
                 <!-- <div v-else-if="tab === 'leads'">
                   <InsuranceAgentLeadUpload />
@@ -94,10 +105,11 @@ const selectedCompany = ref<any>(null)
 
 // Tabs & underline
 const tabs = [
-  { key: 'employees', label: 'Current Employees' },
-  { key: 'inactive', label: 'Former Employees' },
-  { key: 'insuranceAgents', label: 'Insurance Agents' },
-  { key: 'auditTrailList', label: 'Completed Applications' },
+  { key: 'employees', label: 'Insurance Cards' },
+  // { key: 'inactive', label: 'Former Employees' },
+  { key: 'insuranceAgents', label: 'Manage Insurance Agents' },
+  { key: 'adminOverview', label: 'Manage Admins' },
+  { key: 'auditTrailList', label: 'Enrollment Requests' },
   //   { key: 'leads', label: 'Leads' },
   // { key: 'seoRequest', label: 'SEO Request' },
   // { key: 'webDevelopmentRequest', label: 'Web Development Request' },

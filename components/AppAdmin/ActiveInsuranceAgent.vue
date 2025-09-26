@@ -1,5 +1,8 @@
 <template>
-  <div class="mx-auto py-4">
+  <div class="mx-auto py-6">
+    <div v-if="!mock" class="mb-4">
+      <h2 class="text-xl font-bold">Active Insurance Agents</h2>
+    </div>
     <!-- Restrict access -->
     <div v-if="!isAppAdmin" class="text-red-500">
       You do not have permission to manage insurance agents.

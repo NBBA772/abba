@@ -1,5 +1,8 @@
 <template>
-  <div class="mx-auto py-4">
+  <div class="mx-auto py-6">
+    <div v-if="!mock" class="mb-4">
+      <h2 class="text-xl font-bold">Inactive Insurance Agents</h2>
+    </div>
     <!-- Skeleton loader while loading -->
     <EmployeeSkeleton v-if="loading" />
 
