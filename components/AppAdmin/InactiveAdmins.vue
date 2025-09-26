@@ -10,7 +10,7 @@
     <!-- Agents list -->
     <div v-else>
       <div v-if="agents.length === 0" class="text-gray-500 dark:text-gray-400">
-        No inactive agents found.
+        No inactive admins found.
       </div>
 
       <ul v-else class="space-y-2">
