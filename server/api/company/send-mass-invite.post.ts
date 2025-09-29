@@ -105,7 +105,7 @@ export default defineEventHandler(async (event) => {
 
       // Send email
       const { error } = await resend.emails.send({
-        from: "noreply@businessbenefitalliance.com",
+        from: "noreply@updates.businessbenefitalliance.com",
         to: email,
         subject: `Your Company Code for ${company.companyName}`,
         html: `

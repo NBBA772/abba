@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <!-- Conditional rendering -->
+    <!-- Conditional rendering! -->
      <ActiveAdmin v-if="viewMode === 'active'" />
      <InviteAdmin v-else-if="viewMode === 'invite'" @close="viewMode = 'active'" />
      <MassInviteAdmins v-else-if="viewMode === 'massInvite'" @close="viewMode = 'active'" />

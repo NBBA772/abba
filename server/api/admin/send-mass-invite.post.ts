@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
       const signupLink = `https://www.businessbenefitalliance.com/register-admin`;
 
       const { error } = await resend.emails.send({
-        from: "noreply@businessbenefitalliance.com",
+        from: "noreply@updates.businessbenefitalliance.com",
         to: email,
         subject: "You're Invited to Join as an Admin",
         html: `
