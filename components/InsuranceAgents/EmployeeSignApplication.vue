@@ -355,6 +355,31 @@
           </div>
 
 
+
+
+
+          <!-- Vision And Dental Plan -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Do you need Vision and Dental coverage?
+            </label>
+            <select v-model="app.visionAndDentalPlan"
+                    :disabled="!isAgent"
+                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                    required>
+              <option :value="null">Select an option</option>
+              <option :value="true">Yes</option>
+              <option :value="false">No</option>
+            </select>
+
+          </div>
+
+
+
+
+
+
+
           <!-- Ancillary Plans -->
           <div v-if="app.ancillaryPlans?.length">
             <h2 class="mt-6 text-xl font-semibold text-gray-800 dark:text-gray-200">
@@ -419,10 +444,11 @@ import SignaturePad from 'vue3-signature-pad'
 import { useCookie } from '#imports'
 
 interface InsuranceApplication {
-  id?: number
-  groupNumber: string
-  groupName: string
-  healthPlan?: string
+  id?: number,
+  groupNumber: string,
+  groupName: string,
+  healthPlan?: string,
+  visionAndDentalPlan?: boolean,
   firstName: string,
   middleName: string
   lastName: string,
@@ -1121,10 +1147,106 @@ planRows.forEach((row, rowIndex) => {
 
 
 
+
+
+// ---------------- Vision and Dental Plan Options Section ----------------
+
+// Start below Health section (adjust spacing as needed)
+let visionDentalY = planTableY - (planRowHeight * (planRows.length + 3))
+
+// Heading
+page2.drawText("Vision and Dental Plan Options", {
+  x: 20,
+  y: visionDentalY,
+  size: 16,
+  font: helveticaBold
+})
+
+page2.drawLine({
+  start: { x: 20, y: visionDentalY - 3 },
+  end: { x: 592, y: visionDentalY - 3 },
+  thickness: 1,
+  color: rgb(0, 0, 0)
+})
+
+// Description text
+const visionDescY = visionDentalY - 20
+page2.drawText(
+  "Do you like to enroll in the vision/dental plan? For more information on the vision/dental plan listed below, please contact your insurance agent or broker.",
+  { x: 20, y: visionDescY, size: 10, font: helvetica }
+)
+
+// Table setup
+const visionTableY = visionDescY - 30
+const visionTableX = 20
+const visionRowHeight = 20
+
+// Plan headers
+const visionHeaders = ["Select", "Plan Name / Type"]
+const visionColWidths = [50, 522] 
+
+// Draw header row
+let visionHeaderX = visionTableX
+visionHeaders.forEach((header, i) => {
+  page2.drawRectangle({
+    x: visionHeaderX,
+    y: visionTableY,
+    width: visionColWidths[i],
+    height: visionRowHeight,
+    borderColor: rgb(0, 0, 0),
+    borderWidth: 1
+  })
+  page2.drawText(header, {
+    x: visionHeaderX + 2,
+    y: visionTableY + 6,
+    size: 9,
+    font: helveticaBold
+  })
+  visionHeaderX += visionColWidths[i]
+})
+
+// Plan rows (update values to vision/dental plans)
+const visionRows = [
+  { name: "Vision & Dental Plan", value: "vd1" },
+]
+
+// Use `app.visionDentalPlan` from DB
+visionRows.forEach((row, rowIndex) => {
+  const y = visionTableY - visionRowHeight * (rowIndex + 1)
+  let cellX = visionTableX
+
+  // Checkbox cell
+  page2.drawRectangle({ x: cellX, y, width: visionColWidths[0], height: visionRowHeight, borderColor: rgb(0, 0, 0), borderWidth: 1 })
+  page2.drawRectangle({ x: cellX + 15, y: y + 5, width: 10, height: 10, borderColor: rgb(0, 0, 0), borderWidth: 1 })
+
+  // ✅ Draw checkmark if selected
+  if (app.visionAndDentalPlan === true) {
+    page2.drawLine({ start: { x: cellX + 15, y: y + 10 }, end: { x: cellX + 20, y: y + 5 }, thickness: 1.5, color: rgb(0, 0, 0) })
+    page2.drawLine({ start: { x: cellX + 20, y: y + 5 }, end: { x: cellX + 28, y: y + 15 }, thickness: 1.5, color: rgb(0, 0, 0) })
+  }
+
+  // Plan name cell
+  cellX += visionColWidths[0]
+  page2.drawRectangle({ x: cellX, y, width: visionColWidths[1], height: visionRowHeight, borderColor: rgb(0, 0, 0), borderWidth: 1 })
+  page2.drawText(row.name, { x: cellX + 5, y: y + 6, size: 9, font: helvetica })
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     // ---------------- Ancillary Plans Section ----------------
 if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
-  healthY -= 140
+  healthY -= 280
   page2.drawText("Ancillary Plans", { 
     x: 20, 
     y: healthY, 

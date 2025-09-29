@@ -423,9 +423,32 @@
 
 
 
-      <!-- Step 10. Ancillary Insurance Info -->
+      <!-- Step 8. Vision and Dental Plan -->
       <Transition name="fade-slide" mode="out-in">
         <div v-if="currentStep === 7" class="space-y-4">
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Do you need Vision and Dental coverage?
+            </label>
+            <select v-model="form.visionAndDentalPlan"
+                    :disabled="!isAgent"
+                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                    required>
+              <option :value="null">Select an option</option>
+              <option :value="true">Yes</option>
+              <option :value="false">No</option>
+            </select>
+
+          </div>
+        </div>
+      </Transition>
+
+
+
+
+      <!-- Step 9. Ancillary Insurance Info -->
+      <Transition name="fade-slide" mode="out-in">
+        <div v-if="currentStep === 8" class="space-y-4">
           
           <div v-for="(plan, index) in form.ancillaryPlans" :key="index" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             
@@ -525,7 +548,7 @@ import { useCookie } from "#imports";
 // 👇 Define props
 const props = defineProps<{ userId: number, application?: any }>()
 
-const steps = ['Group', 'Personal', 'Address', 'company', 'Spouse', 'dependents', 'ancillary', 'Plan']
+const steps = ['Group', 'Personal', 'Address', 'company', 'Spouse', 'dependents', 'visionAndDental', 'ancillary', 'Plan']
 const currentStep = ref(0)
 
 const form = reactive({
@@ -533,6 +556,7 @@ const form = reactive({
   groupNumber: '',
   groupName: '',
   healthPlan: '',
+  visionAndDentalPlan: false,
   firstName: '',
   lastName: '',
   phoneNumber: '',
@@ -608,6 +632,7 @@ const submitForm = async () => {
     form.groupNumber = ''
     form.groupName = ''
     form.healthPlan = ''
+    form.visionAndDentalPlan = false
     form.firstName = ''
     form.lastName = ''
     form.phoneNumber = ''
@@ -679,6 +704,7 @@ function populateForm(app: any) {
   form.groupNumber = app.groupNumber || ''
   form.groupName = app.groupName || ''
   form.healthPlan = app.healthPlan || ''
+  form.visionAndDentalPlan = app.visionAndDentalPlan ?? false
   form.firstName = app.firstName || ''
   form.middleName = app.middleName || ''
   form.lastName = app.lastName || ''
@@ -730,7 +756,7 @@ function populateForm(app: any) {
 
   // Ancillary Plans
   form.ancillaryPlans = app.ancillaryPlans?.length
-    ? app.ancillaryPlans.map((p: any) => ({ planName: p.planName || '', price: p.price ?? null }))
+    ? app.ancillaryPlans.map((p: any) => ({ planName: p.planName || '', product: p.product || '', price: p.price ?? null }))
     : [{ planName: '', product: null, price: null }]
 }
 

@@ -25,20 +25,29 @@
  *                   example: true
  */
 
-import { PrismaClient } from '@prisma/client'
-import { defineEventHandler, getRouterParam } from 'h3'
+import { PrismaClient } from "@prisma/client"
+import { defineEventHandler, getRouterParam } from "h3"
 
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
-  const id = Number(getRouterParam(event, 'id'))
-  if (isNaN(id)) return { isAdmin: false }
+  const id = Number(getRouterParam(event, "id"))
+  if (isNaN(id)) return { isAdmin: false, isAgent: false }
 
-  // Look up the user and check if linked to AppAdmin
+  // Look up the user with both fields
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { appAdminId: true },
+    select: { 
+      appAdminId: true,
+      insuranceAgent: { select: { id: true } }
+    },
   })
 
-  return { isAdmin: !!user?.appAdminId }
+  const isAgent = !!user?.insuranceAgent
+  const isAdmin = !!user?.appAdminId && !isAgent // Only true if not an agent
+
+  return {
+    isAdmin,
+    isAgent,
+  }
 })
