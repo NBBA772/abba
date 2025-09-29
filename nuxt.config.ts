@@ -75,6 +75,7 @@ export default defineNuxtConfig({
 vite: {
   server: {
     allowedHosts: [
+      'businessbenefitalliance.com',
       'localhost',
       'e62561302452.ngrok-free.app',
     ],

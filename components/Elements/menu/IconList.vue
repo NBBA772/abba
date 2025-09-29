@@ -136,7 +136,7 @@ watch(
       class="h-16 w-16 rounded-full object-cover ring-2 ring-blue-500 hover:ring-blue-400 transition-all"
     />
 
-    <!-- Fallback default avatar -->
+    <!-- Fallback default avatar! -->
 <Icon
   v-else
   name="heroicons-solid:user"

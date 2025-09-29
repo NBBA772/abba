@@ -11,7 +11,7 @@ const options = {
       description:
         "API documentation for the NBBA app — a comprehensive group insurance management platform that allows users to track, manage, and access their insurance plans, claims, and related resources efficiently.",
     },
-    servers: [{ url: "http://localhost:3000" }],
+    servers: [{ url: "https://businessbenefitalliance.com" }],
     components: {
       securitySchemes: {
         bearerAuth: {
