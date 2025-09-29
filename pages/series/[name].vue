@@ -73,7 +73,7 @@ function createIframe(vidId: string) {
           <NuxtLink to="/">
             <img
               class="h-20"
-              src="/img/logo_clear_fsj.png"
+              src="/img/logo.png"
               alt="full stack jack logo"
             />
             <h1 class="font-bold text-gray-200 text-[15px] ml-3">
