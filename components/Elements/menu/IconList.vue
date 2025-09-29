@@ -107,7 +107,7 @@ watch(
 
 
     <!-- Light/Dark Toggle -->
-    <ClientOnly>
+    <!-- <ClientOnly>
       <span @click="setColorTheme" class="cursor-pointer">
         <Icon
           v-if="colorMode.value === 'dark'"
@@ -120,7 +120,7 @@ watch(
           class="w-6 h-6 text-gray-800 dark:text-gray-100"
         />
       </span>
-    </ClientOnly>
+    </ClientOnly> -->
 
 <!-- Avatar / Login -->
 <NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile">
