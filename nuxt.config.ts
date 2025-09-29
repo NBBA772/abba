@@ -66,7 +66,7 @@ export default defineNuxtConfig({
     serveStatic: true,
     publicAssets: [
       {
-        baseURL: '/uploads', // URL path to access the files
+        baseURL: '/uploads', // URL path to access the files. not needed
         dir: './uploads',    // Directory relative to the root of the project
       },
     ],

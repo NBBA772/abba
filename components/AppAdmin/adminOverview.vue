@@ -29,31 +29,31 @@
             @click="openInvite"
             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#3a4934]"
           >
-            Invite Agent
+            Invite Admin
           </button>
           <button
             @click="openMassInvite"
             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#3a4934]"
           >
-            Mass Invite Agents
+            Mass Invite Admins
           </button>
           <button
             @click="showActive"
             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#3a4934]"
           >
-            Show Active Agents
+            Show Active Admins
           </button>
           <button
             @click="showDeleted"
             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#3a4934]"
           >
-            Show Deleted Agents
+            Show Deleted Admins
           </button>
           <button
             @click="exportCSV"
             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#3a4934]"
           >
-            Export Insurance Agents CSV
+            Export Admins CSV
           </button>
         </div>
       </div>
