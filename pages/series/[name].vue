@@ -31,7 +31,7 @@ function setActive(video: Video) {
       <img src="https://i.ytimg.com/vi/${activeVideo.value.host_id}/maxresdefault.jpg"
         class="block object-cover object-center lg:rounded-lg w-full min-w-200 aspect-video mb-10 p-0"
         alt="video thumbnail" />
-      <img src="/img/youtube_social_icon_red.png"
+      <img src="/img/logo.png"
         class="absolute text-5xl text-white top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2"
         alt="youtube play button">
     </div>
@@ -158,7 +158,7 @@ function createIframe(vidId: string) {
                   alt="video thumbnail"
                 />
                 <img
-                  src="/img/youtube_social_icon_red.png"
+                  src="/img/logo.png"
                   class="absolute text-5xl text-white top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2"
                   alt="youtube play button"
                 />
