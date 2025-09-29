@@ -30,7 +30,7 @@
                   :key="t.key"
                   ref="tabRefs"
                   class="cursor-pointer pb-2 relative"
-                  :class="tab === t.key ? 'text-blue-500' : 'text-gray-100 hover:text-blue-500'"
+                  :class="tab === t.key ? 'text-blue-500' : 'text-gray-600 hover:text-blue-500'"
                   @click="setTab(t.key)"
                 >
                   {{ t.label }}
