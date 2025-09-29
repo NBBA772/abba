@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
     const signupLink = `https://www.businessbenefitalliance.com/register-insurance-agent`
 
     const { error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "noreply@businessbenefitalliance.com",
       to: body.email,
       subject: "You're Invited to Join as an Insurance Agent",
       html: `
