@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CategoryCard from "~/components/elements/CategoryCard.vue";
 const route = useRoute();
 const { data: rows } = await useFetch("/api/categories", {
   key: route.fullPath,

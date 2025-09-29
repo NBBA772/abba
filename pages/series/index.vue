@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ICategory } from "~/types/ICategory"; // Use type-only import
-import CategoryCard from "~/components/elements/CategoryCard.vue";
 import { useRoute } from "vue-router";
 import { useFetch } from "#app";
 
