@@ -87,15 +87,15 @@ export default defineEventHandler(async (event) => {
       });
 
       // Send email
-      const signupLink = `https://yourapp.com/agent/signup?email=${encodeURIComponent(email)}`;
+      const signupLink = `hhttp://localhost:3000/register-admin`;
 
       const { error } = await resend.emails.send({
         from: "onboarding@resend.dev",
         to: email,
-        subject: "You're Invited to Join as an Insurance Agent",
+        subject: "You're Invited to Join as an Admin",
         html: `
           <p>Hello,</p>
-          <p>You’ve been invited to join our platform as an <b>insurance agent</b>.</p>
+          <p>You’ve been invited to join our platform as an <b>admin</b>.</p>
           <p>Please click the link below to create your account:</p>
           <p><a href="${signupLink}">Create Account</a></p>
         `,

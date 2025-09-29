@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
       });
 
       // Send email
-      const signupLink = `https://yourapp.com/agent/signup?email=${encodeURIComponent(email)}`;
+      const signupLink = `https://www.businessbenefitalliance.com/register-insurance-agent`;
 
       const { error } = await resend.emails.send({
         from: "onboarding@resend.dev",

@@ -93,6 +93,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
+    const signupLink = `https://www.businessbenefitalliance.com/register`
     // Init Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -104,6 +105,9 @@ export default defineEventHandler(async (event) => {
         <p>Hello,</p>
         <p>Here is your company code for <b>${company.companyName}</b>:</p>
         <h2>${company.businessCode}</h2>
+
+        <p>Please click the link below to create your account:</p>
+        <p><a href="${signupLink}">Create Account</a></p>
       `,
     })
 

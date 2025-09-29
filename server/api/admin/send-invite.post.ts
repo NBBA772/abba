@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
       subject: "You're Invited to Join as an Insurance Agent",
       html: `
         <p>Hello,</p>
-        <p>You’ve been invited to join our platform as an <b>insurance agent</b>.</p>
+        <p>You’ve been invited to join our platform as an <b>admin</b>.</p>
         <p>Please click the link below to create your account:</p>
         <p><a href="${signupLink}">Create Account</a></p>
       `,

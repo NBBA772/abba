@@ -86,7 +86,7 @@ export default defineEventHandler(async (event) => {
     // Init Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const signupLink = `http://localhost:3000/register-insurance-agent`
+    const signupLink = `https://www.businessbenefitalliance.com/register-insurance-agent`
 
     const { error } = await resend.emails.send({
       from: "onboarding@resend.dev",

@@ -101,6 +101,8 @@ export default defineEventHandler(async (event) => {
         },
       });
 
+      const signupLink = `https://www.businessbenefitalliance.com/register`
+
       // Send email
       const { error } = await resend.emails.send({
         from: "onboarding@resend.dev",
@@ -110,6 +112,9 @@ export default defineEventHandler(async (event) => {
           <p>Hello,</p>
           <p>Here is your company code for <b>${company.companyName}</b>:</p>
           <h2>${company.businessCode}</h2>
+
+           <p>Please click the link below to create your account:</p>
+           <p><a href="${signupLink}">Create Account</a></p>
         `,
       });
 
