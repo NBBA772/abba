@@ -123,12 +123,12 @@ watch(
     </ClientOnly> -->
 
 <!-- Avatar / Login -->
-<NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile">
+<!-- <NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile">
   <template v-if="isLoggedIn">
-    <!-- Skeleton while fetching -->
+   
     <IconListSkeletonLoader v-if="loading" />
 
-    <!-- User avatar -->
+   
     <img
       v-else-if="avatar"
       :src="avatar"
@@ -136,14 +136,14 @@ watch(
       class="h-16 w-16 rounded-full object-cover ring-2 ring-blue-500 hover:ring-blue-400 transition-all"
     />
 
-    <!-- Fallback default avatar -->
+
     <IconListSkeletonLoader v-else />
   </template>
 
   <template v-else>
     <User :isLoggedIn="isLoggedIn" class="md:block" />
   </template>
-</NuxtLink>
+</NuxtLink> -->
 
 
 
