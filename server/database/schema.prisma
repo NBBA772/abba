@@ -6,8 +6,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL")
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_PRISMA_URL")
 }
 
 model User {
@@ -86,6 +86,7 @@ model InsuranceAgent {
   isActive  Boolean  @default(true)
   isAvailable Boolean @default(false)
   isOnCall    Boolean @default(false)
+  lastAssignedAt DateTime?
   deletedAt  DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -231,13 +232,13 @@ model LeadNote {
 model LeadInvite {
   id        Int      @id @default(autoincrement())
   email     String
-  leadId    Int
+  leadId    Int?
   agentId   Int
   createdAt DateTime @default(now())
 
   acceptedAt DateTime?
 
-  lead  Lead @relation(fields: [leadId], references: [id])
+  lead  Lead? @relation(fields: [leadId], references: [id])
   agent User @relation(fields: [agentId], references: [id])
 }
 

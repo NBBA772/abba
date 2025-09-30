@@ -6,9 +6,7 @@ import type { Ref } from "vue";
 
 const router = useRouter();
 
-// Get inviteId from query params if exists
-let inviteId: string | undefined;
-
+// Form refs
 const companyName = ref('');
 const ein = ref('');
 const salesmanCode = ref('');
@@ -38,7 +36,7 @@ const plans = [
   { value: "11+", label: "11+ Employees - $999.99 Once & $24.99/month" }
 ];
 
-// Mark the lead invite as accepted
+// Mark invite as accepted
 async function markInviteAccepted(inviteId: number) {
   if (!inviteId) return console.warn("No invite ID provided");
   try {
@@ -54,14 +52,13 @@ async function markInviteAccepted(inviteId: number) {
   }
 }
 
-
-
 async function postRegisterForm() {
   let sessionId: number | string | undefined;
   let agentId: number | undefined;
+  let inviteId: number | undefined;
 
   try {
-    // 1️⃣ Prepare payload for registration
+    // 1️⃣ Prepare registration payload
     const payload = {
       username: adminUsername.value,
       firstName: adminFirstName.value,
@@ -94,10 +91,9 @@ async function postRegisterForm() {
       return;
     }
 
-    // 3️⃣ Assign sessionId
     sessionId = response?.session?.id || response?.user?.id;
 
-    // 4️⃣ Automatically add admin as employee
+    // 3️⃣ Add admin as employee
     try {
       const companyBusinessCode = response.company.businessCode;
       if (!companyBusinessCode) throw new Error("Company business code not found");
@@ -114,54 +110,56 @@ async function postRegisterForm() {
           password: adminPassword.value
         },
       });
-      console.log("Admin also created as Employee");
     } catch (err) {
       console.error("Failed to create admin as employee:", err);
     }
 
-    // 5️⃣ After registration, try to fetch invite
-    try {
-      const inviteData = await $fetch("/api/leads/get-invite", {
-        method: "POST",
-        body: { email: adminEmail.value },
-      });
+    // 4️⃣ Assign agent via round-robin
+try {
+  const agentData = await $fetch("/api/insurance-agent/round-robin");
+  agentId = agentData?.agent?.id; // ✅ fixed
+  console.log("Assigned agentId:", agentId);
+  if (!agentId) throw new Error("No agent available");
+} catch (err) {
+  console.error("Failed to assign agent:", err);
+  return;
+}
 
-      if (inviteData?.id && inviteData?.agentId) {
-        inviteId = Number(inviteData.id);
-        agentId = Number(inviteData.agentId);
-        console.log("Invite ID fetched:", inviteId, "Agent ID:", agentId);
+// 5️⃣ Save lead invite for admin (no email, just DB)
+try {
+  const invitePayload = {
+    email: adminEmail.value,
+    agentId,
+    leadId: null,
+    acceptedAt: new Date(),
+  };
+  console.log("Creating lead invite with payload:", invitePayload);
+  const inviteData = await $fetch("/api/leads/create-invite", {
+    method: "POST",
+    body: invitePayload,
+  });
+  console.log("Lead invite saved:", inviteData);
+  inviteId = inviteData?.invite?.id;
+} catch (err) {
+  console.error("Failed to save lead invite:", err);
+}
 
-        // 6️⃣ Mark invite accepted
-        await markInviteAccepted(inviteId);
-      } else {
-        console.log("No active invite found for this email, continuing...");
-      }
-    } catch (err: any) {
-      console.error("Registration failed:", err);
-      const map = new Map<string, { message: string }>();
-      if (err?.data?.message) {
-        map.set("general", { message: err.data.message });
-      } else if (err?.status) {
-        map.set("general", { message: `Error ${err.status}` });
-      } else {
-        map.set("general", { message: "Unknown error occurred" });
-      }
-      errors.value = map;
+
+    // 6️⃣ Mark invite as accepted (optional redundancy)
+    if (inviteId) {
+      await markInviteAccepted(inviteId);
+      console.log("Invite accepted:", inviteId);
     }
 
-    // 7️⃣ Redirect
+    // 7️⃣ Redirect to dashboard
     if (sessionId) router.push(`/dashboard/${sessionId}`);
 
   } catch (err) {
     console.error("Registration failed:", err);
   }
 }
-
-
-
-
-
 </script>
+
 
 
 
