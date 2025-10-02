@@ -14,7 +14,7 @@
           </svg>
           <h1 class="text-3xl font-bold text-gray-900">Register App Admin</h1>
         </div>
-        <p class="text-lg text-white max-w-2xl mx-auto">
+        <p class="text-lg text-gray-900 max-w-2xl mx-auto">
           Create your AppAdmin account to manage the NBBA platform.
         </p>
       </div>

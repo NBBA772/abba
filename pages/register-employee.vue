@@ -14,7 +14,7 @@
           </svg>
           <h1 class="text-3xl font-bold text-gray-900">Join Your Company</h1>
         </div>
-        <p class="text-lg text-white max-w-2xl mx-auto">
+        <p class="text-lg text-gray-900 max-w-2xl mx-auto">
           Enter your company's business code to join their NBBA membership and access exclusive benefits.
         </p>
       </div>

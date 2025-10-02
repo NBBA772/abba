@@ -117,7 +117,7 @@ async function postRegisterForm() {
     // 4️⃣ Assign agent via round-robin
 try {
   const agentData = await $fetch("/api/insurance-agent/round-robin");
-  agentId = agentData?.agent?.id; // ✅ fixed
+  agentId = agentData?.agent?.id;
   console.log("Assigned agentId:", agentId);
   if (!agentId) throw new Error("No agent available");
 } catch (err) {
