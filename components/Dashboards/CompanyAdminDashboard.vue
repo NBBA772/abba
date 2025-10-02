@@ -109,6 +109,7 @@
                   </div>
 
                     <!-- Request SEO Tab -->
+<!--                      
                     <div v-else-if="tab === 'requestSEO'" class="p-4 mt-4 bg-white dark:bg-[#3a4934] shadow rounded-lg">
                       <div class="flex items-center mb-4 space-x-4">
                         <span :class="!tabSwitch ? 'font-bold' : ''">Request SEO</span>
@@ -132,15 +133,15 @@
                         <span :class="tabSwitch ? 'font-bold' : ''">View Requests</span>
                       </div>
 
-                      <!-- Animate toggle -->
+                      
                       <Transition name="fade-slide" mode="out-in">
                         <component :is="tabSwitch ? 'SeoRequestsList' : 'RequestSEO'" :key="tabSwitch" />
                       </Transition>
-                    </div>
+                    </div> -->
 
 
                   <!-- Request Web Development Tab -->
-                  <div v-else-if="tab === 'requestWebDevelopment'" class="p-4 mt-4 bg-white dark:bg-[#3a4934] shadow rounded-lg">
+                  <!-- <div v-else-if="tab === 'requestWebDevelopment'" class="p-4 mt-4 bg-white dark:bg-[#3a4934] shadow rounded-lg">
                     <div class="flex items-center mb-4 space-x-4">
                       <span :class="!tabSwitch ? 'font-bold' : ''">Request Web Development</span>
                       <label class="inline-flex relative items-center cursor-pointer">
@@ -167,12 +168,12 @@
                       <component :is="tabSwitch ? 'WebDevelopmentRequestsList' : 'RequestWebDevelopment'" :key="tabSwitch" />
                     </Transition>
 
-                  </div>
+                  </div> -->
 
                   <!-- Payroll Tab -->
-                  <div v-else-if="tab === 'payroll'">
+                  <!-- <div v-else-if="tab === 'payroll'">
                     <Payroll/>
-                  </div>
+                  </div> -->
 
                   <!-- Application Tab -->
                   <div v-else-if="tab === 'application'">
@@ -208,9 +209,9 @@ const underlineWidth = ref(0)
 
 const tabs = [
   { key: 'employees', label: 'Employees' },
-  { key: 'requestSEO', label: 'Request SEO' },
-  { key: 'requestWebDevelopment', label: 'Request Web Development' },
-  { key: 'payroll', label: 'Payroll' },
+  // { key: 'requestSEO', label: 'Request SEO' },
+  // { key: 'requestWebDevelopment', label: 'Request Web Development' },
+  // { key: 'payroll', label: 'Payroll' },
   { key: 'application', label: 'Applications' },
 ]
 
