@@ -16,7 +16,7 @@ const BUCKET_NAME = process.env.AWS_S3_BUCKET!;
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse form (expecting applicationId + pdf)
+    // Parse form (expecting paymentAuthorizationId + pdf)
     const form = formidable({ multiples: false });
     const { fields, files } = await new Promise<any>((resolve, reject) => {
       form.parse(event.node.req, (err, fields, files) => {
@@ -25,9 +25,9 @@ export default defineEventHandler(async (event) => {
       });
     });
 
-    const { applicationId } = fields;
-    if (!applicationId) {
-      throw createError({ statusCode: 400, statusMessage: "Missing application ID" });
+    const { paymentAuthorizationId } = fields;
+    if (!paymentAuthorizationId) {
+      throw createError({ statusCode: 400, statusMessage: "Missing paymentAuthorization ID" });
     }
 
     const pdfFile = Array.isArray(files.pdf) ? files.pdf[0] : files.pdf;
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     const pdfBuffer = await fs.readFile(pdfFile.filepath);
 
     // Upload PDF to S3
-    const s3Key = `applications/${applicationId}-${Date.now()}.pdf`;
+    const s3Key = `paymentAuthorizations/${paymentAuthorizationId}-${Date.now()}.pdf`;
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET_NAME,
@@ -69,10 +69,10 @@ export default defineEventHandler(async (event) => {
     const documentHash = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
 
     // Save IP and signer in audit trail
-    await prisma.paymentAuthorizationAuditTrail.create({
+    await prisma.auditTrail.create({
       data: {
         userId: session.user.id,
-        paymentAuthorizationId: Number(applicationId),
+        insuranceApplicationId: Number(paymentAuthorizationId),
         ip: String(ip),
         signer: `${session.user.firstName} ${session.user.lastName}`,
         email: session.user.email,
@@ -81,9 +81,9 @@ export default defineEventHandler(async (event) => {
       }
     });
 
-    // Update application with PDF URL
-    const updatedApplication = await prisma.paymentAuthorization.update({
-      where: { id: Number(applicationId) },
+    // Update paymentAuthorization with PDF URL
+    const updatedApplication = await prisma.insuranceApplication.update({
+      where: { id: Number(paymentAuthorizationId) },
       data: { pdfUrl },
     });
 

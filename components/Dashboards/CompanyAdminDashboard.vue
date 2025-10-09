@@ -179,6 +179,11 @@
                   <div v-else-if="tab === 'application'">
                     <Application />
                   </div>
+
+                  <!-- Payment Tab -->
+                  <div v-else-if="tab === 'payment'">
+                    <PaymentAuthorizationForm />
+                  </div>
                 </div>
               </Transition>
 
@@ -213,6 +218,7 @@ const tabs = [
   // { key: 'requestWebDevelopment', label: 'Request Web Development' },
   // { key: 'payroll', label: 'Payroll' },
   { key: 'application', label: 'Applications' },
+  { key: 'payment', label: 'Payment' },
 ]
 
 async function getLoggedInUser() {
