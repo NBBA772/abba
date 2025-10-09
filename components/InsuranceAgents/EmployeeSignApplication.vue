@@ -404,7 +404,12 @@
           </div>
 
         <!-- Signature Pad -->
-        <SignaturePad :ref="el => { if (el) signaturePads[app.id!] = el }" />
+        <div class="signature-container mt-4">
+        <SignaturePad  class="w-full h-40 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#3a3a3a]" :ref="el => { if (el) signaturePads[app.id!] = el }" />
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 italic">
+            *Sign Here
+          </p>
+        </div>
 
         <!-- E-sign consent -->
         <div class="flex items-center mt-2">
