@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    const signupLink = `https://www.businessbenefitalliance.com/register`
+    const signupLink = `https://www.businessbenefitalliance.com/register-employee`
     // Init Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
 

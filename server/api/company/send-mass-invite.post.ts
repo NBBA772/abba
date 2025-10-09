@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
         },
       });
 
-      const signupLink = `https://www.businessbenefitalliance.com/register`
+      const signupLink = `https://www.businessbenefitalliance.com/register-employee`
 
       // Send email
       const { error } = await resend.emails.send({
