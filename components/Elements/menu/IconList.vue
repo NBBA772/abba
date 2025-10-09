@@ -123,7 +123,7 @@ watch(
     </ClientOnly> -->
 
 <!-- Avatar / Login -->
-<NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile">
+<NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile" class="text-gray-400">
   <template v-if="isLoggedIn">
     <!-- Skeleton while fetching -->
     <IconListSkeletonLoader v-if="loading" />
