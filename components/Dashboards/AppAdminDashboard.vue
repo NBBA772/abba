@@ -71,6 +71,12 @@
                   <adminOverview />
                 </div>
 
+                <div v-else-if="tab === 'CompanyAgentAssignments'">
+                  <CompanyAgentAssignments />
+                </div>
+
+
+                
 
 
                 <!-- <div v-else-if="tab === 'leads'">
@@ -108,6 +114,7 @@ const tabs = [
   { key: 'employees', label: 'Insurance Cards' },
   // { key: 'inactive', label: 'Former Employees' },
   { key: 'insuranceAgents', label: 'Manage Insurance Agents' },
+   { key: 'CompanyAgentAssignments', label: 'Manage Clients' },
   { key: 'adminOverview', label: 'Manage Admins' },
   { key: 'auditTrailList', label: 'Enrollment Requests' },
   //   { key: 'leads', label: 'Leads' },

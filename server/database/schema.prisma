@@ -86,6 +86,7 @@ model InsuranceAgent {
   isActive  Boolean  @default(true)
   isAvailable Boolean @default(false)
   isOnCall    Boolean @default(false)
+  companies   Company[] 
   lastAssignedAt DateTime?
   deletedAt  DateTime?
   createdAt  DateTime @default(now())
@@ -396,6 +397,10 @@ model Company {
   invites         EmployeeInvite[]
   seoRequests     SEORequest[]
   webDevelopmentRequests WebDevelopmentRequest[]
+
+  agentId        Int?
+  agent          InsuranceAgent? @relation(fields: [agentId], references: [id])
+
   
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt

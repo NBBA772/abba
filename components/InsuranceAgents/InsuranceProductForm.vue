@@ -22,7 +22,7 @@
                 <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Group #</label>
                 <input type="text" v-model="form.companyCode"
                       class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                      required disabled/>
+                      required />
               </div>
               <div>
                 <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Name of Group</label>

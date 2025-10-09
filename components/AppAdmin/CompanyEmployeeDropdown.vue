@@ -27,7 +27,7 @@
     </div>
 
     <!-- Employee Dropdown -->
-    <div v-if="!companyOnly && employees.length" class="relative">
+    <div v-if="!companyOnly && mergedEmployees.length" class="relative">
       <label class="block mb-1 font-semibold">Select Employee</label>
       <select
         v-model="selectedEmployeeId"
@@ -38,11 +38,12 @@
       >
         <option value="" disabled>Select an employee</option>
         <option
-          v-for="emp in employees"
+          v-for="emp in mergedEmployees"
           :key="emp.id"
           :value="emp.id"
         >
-          {{ emp.firstName }} {{ emp.lastName }} – {{ emp.email }}
+          {{ emp.firstName }} {{ emp.lastName }}
+          <span v-if="emp.isAdmin">(Admin)</span> – {{ emp.email }}
         </option>
       </select>
       <span
@@ -55,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 interface Company {
   id: number;
@@ -69,10 +70,12 @@ interface Employee {
   lastName: string;
   email: string;
   userId: number;
+  isAdmin?: boolean; // new field
 }
 
 const companies = ref<Company[]>([]);
 const employees = ref<Employee[]>([]);
+const companyAdmins = ref<Employee[]>([]);
 
 const selectedCompanyId = ref<number | null>(null);
 const selectedEmployeeId = ref<number | null>(null);
@@ -86,6 +89,13 @@ const props = defineProps<{
   companyOnly?: boolean
 }>()
 
+// Merge employees and admins into a single list
+const mergedEmployees = computed(() => [
+  ...companyAdmins.value.map(a => ({ ...a, isAdmin: true })),
+  ...employees.value.map(e => ({ ...e, isAdmin: false }))
+]);
+
+// Fetch companies
 const fetchCompanies = async () => {
   try {
     companies.value = await $fetch('/api/companies');
@@ -94,15 +104,20 @@ const fetchCompanies = async () => {
   }
 };
 
+// Fetch employees + company admins
 const fetchEmployees = async (companyId: number) => {
   try {
-    employees.value = await $fetch(`/api/companies/${companyId}/employees`);
+    const res = await $fetch(`/api/companies/${companyId}/employees`);
+    employees.value = res.employees || [];
+    companyAdmins.value = res.companyAdmins || [];
   } catch (err) {
     console.error('Failed to fetch employees', err);
     employees.value = [];
+    companyAdmins.value = [];
   }
 };
 
+// When company changes
 const onCompanyChange = () => {
   const company = companies.value.find(c => c.id === selectedCompanyId.value) || null;
   emit('update:selectedCompany', company);
@@ -110,8 +125,9 @@ const onCompanyChange = () => {
   if (!props.companyOnly && company) fetchEmployees(company.id);
 };
 
+// When employee changes
 const onEmployeeChange = () => {
-  const emp = employees.value.find(e => e.id === selectedEmployeeId.value) || null;
+  const emp = mergedEmployees.value.find(e => e.id === selectedEmployeeId.value) || null;
   emit('update:selectedEmployee', emp);
 };
 
