@@ -554,51 +554,49 @@ model AuditTrail {
 
 model PaymentAuthorization {
   id                Int       @id @default(autoincrement())
-
-  // Relations
   user              User      @relation(fields: [userId], references: [id])
   userId            Int
+
+  amount            Float
+  currency          String
+  paymentMethod     String
+  description       String?
+  fullName          String
+  email             String
+  signatureImageUrl String?   @db.Text
+  ipAddress         String?
+  pdfUrl            String?   @db.Text
+
+  // Billing info
+  cardNumber        String?
+  expiration        String?   // MM/YY format
+  billingAddress    String?
+  city              String?
+  state             String?
+  zip               String?
+
   auditTrails       PaymentAuthorizationAuditTrail[]
 
-  // Payment details
-  amount            Decimal   @db.Decimal(10, 2)
-  currency          String    @default("USD")
-  paymentMethod     String    // e.g. "credit_card", "ach", "check"
-  description       String?   // optional memo or reason for authorization
-
-  // Signature & consent
-  signatureImageUrl String?   @db.Text
-  pdfUrl            String?   @db.Text
-  ipAddress         String?   // captured from request
-  userAgent         String?   // device/browser info
-
-  // Optional extra metadata
-  status            String    @default("SIGNED") // or PENDING, REVOKED, etc.
-  referenceId       String?   // tie to a policy, invoice, or quote
-  authorizedAt      DateTime? // timestamp of signature
-
-  // Timestamps
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 }
 
 
 model PaymentAuthorizationAuditTrail {
-  id                     Int                     @id @default(autoincrement())
+  id                        Int       @id @default(autoincrement())
+  user                      User      @relation(fields: [userId], references: [id])
+  userId                    Int
 
-  // Relations
-  user                   User                    @relation(fields: [userId], references: [id])
-  userId                 Int
-  paymentAuthorization   PaymentAuthorization     @relation(fields: [paymentAuthorizationId], references: [id])
-  paymentAuthorizationId Int
+  paymentAuthorization      PaymentAuthorization @relation(fields: [paymentAuthorizationId], references: [id])
+  paymentAuthorizationId    Int
 
-  // Event data
-  signer                 String
-  email                  String
-  ip                     String
-  userAgent              String?
-  documentHash           String                   // SHA256 of PDF or signature blob
-  action                 String                   // e.g. CREATED, VIEWED, SIGNED, DOWNLOADED
-  createdAt              DateTime                 @default(now())
+  action                    String                // e.g. "SIGNED", "VIEWED"
+  signer                    String
+  email                     String
+  ip                        String
+  userAgent                 String
+  documentHash              String?
+  createdAt                 DateTime              @default(now())
 }
+
 

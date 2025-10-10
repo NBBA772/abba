@@ -1,330 +1,302 @@
 <template>
-  <div class="mx-auto p-6 bg-white dark:bg-[#3a4934] rounded-xl shadow-md space-y-6">
-    <!-- <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-      {{ isExisting ? 'Sign Your Insurance Application' : 'Insurance Application' }}
-    </h2> -->
-
-    <div v-for="app in paymentAuthorizations" :key="app.id" class="border p-4 rounded-md mb-4">
-
+  <div class="mx-auto p-6 bg-white dark:bg-[#2d352d] rounded-xl shadow-md space-y-6">
+    <div
+      v-for="auth in paymentAuthorizations"
+      :key="auth.id"
+      class="border border-gray-200 dark:border-gray-700 p-5 rounded-xl"
+    >
       <!-- Already signed -->
-      <div v-if="app.pdfUrl">
+      <div v-if="auth.pdfUrl">
         <p class="text-green-600 dark:text-green-400 font-medium">
-          You have already signed this paymentAuthorization.
+          This payment authorization has already been signed.
         </p>
-        <button @click="downloadExistingPdf(app.pdfUrl)"
-                class="mt-2 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-[#046937] dark:bg-[#046937] dark:hover:bg-[#058a45]">
-          Download PDF
+        <button
+          @click="downloadExistingPdf(auth.pdfUrl)"
+          class="mt-2 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700"
+        >
+          Download Signed PDF
         </button>
       </div>
 
-      <!-- Sign form -->
-      <form v-else @submit.prevent="submitForm(app)" class="space-y-4">
-      <!-- Group Info -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Authorization Form -->
+      <form v-else @submit.prevent="submitForm(auth)" class="space-y-5">
+       
+
+      
+      
+
+        <!-- Contact Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+            <input
+              v-model="auth.fullName"
+              type="text"
+              class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input
+              v-model="auth.email"
+              type="email"
+              class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              required
+            />
+          </div>
+        </div>
+
+                  <!-- Billing Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 mb-1">Billing Address</label>
+            <input
+              v-model="auth.billingAddress"
+              type="text"
+              class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              placeholder="123 Main St"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 mb-1">City</label>
+            <input
+              v-model="auth.city"
+              type="text"
+              class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              placeholder="City"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 mb-1">State</label>
+            <input
+              v-model="auth.state"
+              type="text"
+              class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              placeholder="State"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 mb-1">Zip Code</label>
+            <input
+              v-model="auth.zip"
+              type="text"
+              class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              placeholder="Zip"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Plan Selection -->
+<div>
+  <label class="block text-gray-700 dark:text-gray-300 mb-1">Select Plan</label>
+  <select
+    v-model="auth.plan"
+    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+    required
+  >
+    <option value="" disabled>Select a plan</option>
+    <option value="Single Member">Single Member | $99.99 Once & $24.99/month</option>
+    <option value="2-5 Employees">2-5 Employees | $299.99 Once & $24.99/month</option>
+    <option value="6-10 Employees">6-10 Employees | $599.99 Once & $24.99/month</option>
+    <option value="11+ Employees">11+ Employees | $999.99 Once & $24.99/month</option>
+  </select>
+</div>
+
+
+
+
+
+          <!-- Credit Card Info -->
+          <div v-if="auth.paymentMethod === 'card'" class="space-y-4">
+            <!-- Card Type -->
             <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Group #</label>
-              <input type="text" v-model="app.groupNumber"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required disabled />
+              <label class="block text-gray-700 dark:text-gray-300 mb-1">Card Type</label>
+              <select
+                v-model="auth.cardType"
+                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                required
+              >
+                <option value="" disabled>Select card type</option>
+                <option value="Visa">Visa</option>
+                <option value="MasterCard">MasterCard</option>
+                <option value="American Express">American Express</option>
+                <option value="Discover">Discover</option>
+              </select>
             </div>
+
+            <!-- Card Number -->
             <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Name of Group</label>
-              <input type="text" v-model="app.groupName"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required disabled />
+              <label class="block text-gray-700 dark:text-gray-300 mb-1">Card Number</label>
+              <input
+                v-model="auth.cardNumber"
+                type="text"
+                maxlength="19"
+                placeholder="XXXX XXXX XXXX XXXX"
+                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                required
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Expiration -->
+              <div>
+                <label class="block text-gray-700 dark:text-gray-300 mb-1">Expiration Date</label>
+                <input
+                  v-model="auth.expiration"
+                  type="text"
+                  placeholder="MM/YY"
+                  class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                  required
+                />
+              </div>
+
+              <!-- CVV -->
+              <div>
+                <label class="block text-gray-700 dark:text-gray-300 mb-1">CVV</label>
+                <input
+                  v-model="auth.cvv"
+                  type="text"
+                  maxlength="4"
+                  placeholder="XXX"
+                  class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                  required
+                />
+              </div>
             </div>
           </div>
-
-
-
-          
-
-
-
-
-          <!-- Personal Info -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">First Name</label>
-              <input type="text" v-model="app.firstName"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Middle Name</label>
-              <input type="text" v-model="app.middleName"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                      />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Last Name</label>
-              <input type="text" v-model="app.lastName"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-          </div>
-
-          <!-- Contact -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Phone Number</label>
-              <input type="text" v-model="app.phoneNumber"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Email</label>
-              <input type="email" v-model="app.email"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-          </div>
-
-
-          <!-- Address -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Street Address</label>
-              <input type="text" v-model="app.streetAddress"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">City</label>
-              <input type="text" v-model="app.city"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">State / Province</label>
-              <input type="text" v-model="app.state"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">ZIP / Postal Code</label>
-              <input type="text" v-model="app.zipCode"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-          </div>
-
-   
-          
-
-
-
-
-
-
-
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-           <!-- Company -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Hire Date</label>
-              <input type="text" :value="formatDate(app.hireDate)" 
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required  />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Rehire Date</label>
-              <input type="date" :value="formatDate(app.rehireDate)" 
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                      />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Location</label>
-              <input type="text" v-model="app.location"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                      />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Division</label>
-              <input type="text" v-model="app.isDivision"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                      />
-            </div>
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Parent Company</label>
-              <input type="text" v-model="app.parentCompany"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                      />
-            </div>
-          </div>
-
-
-
-          
-
-
-
-
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
-          
-
-
-
-
-
-
-
 
         <!-- Signature -->
-        <div class="mt-6">
-        <SignaturePad ref="signaturePad" class="border rounded-lg w-full h-40 bg-gray-100 dark:bg-[#2a2a2a]" />
-        <p class="text-gray-500 text-sm italic mt-1">Sign above to authorize payment</p>
+        <div>
+          <label class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+            Electronic Signature
+          </label>
+          <div class="signature-container mt-4">
+            <SignaturePad
+              class="w-full h-40 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#3a3a3a]"
+              :ref="el => { if (el) signaturePads[auth.id] = el.signaturePad }"
+            />
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 italic">*Sign Here</p>
+          </div>
         </div>
 
-        <!-- E-sign consent -->
-        <div class="flex items-center mt-2">
-        <input type="checkbox" v-model="consent" class="mr-2" required />
-        <label>I consent to electronic signature and authorize this payment.</label>
+        <div class="flex items-center mt-3">
+          <input type="checkbox" v-model="consent[auth.id]" class="mr-2" required />
+          <label class="text-gray-700 dark:text-gray-300 text-sm">
+            I consent to electronic signature and authorize this payment.
+          </label>
         </div>
 
-        <!-- Submit -->
         <button
-        :disabled="!consent"
-        class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+          type="submit"
+          :disabled="!consent[auth.id]"
+          class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
         >
-        Authorize Payment
+          Authorize Payment
         </button>
-
       </form>
     </div>
 
-    <!-- Download Button for last signed PDF -->
-    <!-- <div v-if="pdfDownloadUrl" class="mt-4">
-      <button @click="downloadPdf"
-              class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-[#046937] dark:bg-[#046937] dark:hover:bg-[#058a45]">
-        Download PDF
-      </button>
-    </div> -->
-
-    <!-- Success / Error Messages -->
-    <p v-if="message" class="text-green-600 dark:text-green-400 mt-2">{{ message }}</p>
-    <p v-if="error" class="text-red-600 dark:text-red-400 mt-2">{{ error }}</p>
+    <p v-if="message" class="text-green-600 mt-2">{{ message }}</p>
+    <p v-if="error" class="text-red-600 mt-2">{{ error }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch, onMounted } from 'vue'
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
-import SignaturePad from 'vue3-signature-pad'
-import { useCookie } from '#imports'
+import { ref, reactive, onMounted } from 'vue';
+import SignaturePad from 'vue3-signature-pad';
+import axios from 'axios';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+
+const emit = defineEmits(["completed"])
 
 interface PaymentAuthorization {
-  id: number
-  userId: number
-  amount: number
-  currency: string
-  paymentMethod: 'card' | 'ach' | 'paypal'
-  description: string
-  signedAt: Date
-  signatureImageUrl: string
-  ipAddress: string
-  createdAt: Date
-  updatedAt: Date
-  auditTrail: PaymentAuthorizationAuditTrail[]
+  id: number;
+  userId: number;
+  amount: number;
+  currency: string;
+  paymentMethod: 'card' | 'ach' | 'paypal';
+  description?: string;
+  fullName: string;
+  email: string;
+  pdfUrl?: string;
+  signatureImageUrl?: string;
+
+  // Billing info
+  cardNumber?: string;
+  expiration?: string;      // MM/YY
+  cvv?: string,
+  billingAddress?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
 }
 
-interface PaymentAuthorizationAuditTrail {
-  id: number
-  paymentAuthorizationId: number
-  event: 'SIGNED' | 'VIEWED' | 'UPDATED'
-  timestamp: Date
-  ipAddress: string
-  userAgent: string
-}
+const planPrices = {
+  "Single Member": { oneTime: 99.99, monthly: 24.99 },
+  "2-5 Employees": { oneTime: 299.99, monthly: 24.99 },
+  "6-10 Employees": { oneTime: 599.99, monthly: 24.99 },
+  "11+ Employees": { oneTime: 999.99, monthly: 24.99 },
+};
 
 
 
-const signaturePads = reactive<Record<number, InstanceType<typeof SignaturePad>>>({})
-const pdfDownloadUrl = ref<string | null>(null)
-const message = ref('')
-const error = ref('')
-const isExisting = ref(false)
-const consent = reactive<Record<number, boolean>>({})
 
-const paymentAuthorizations = ref<InsuranceApplication[]>([])
 
-// After fetching paymentAuthorizations
-paymentAuthorizations.value.forEach(app => {
-  if (!app.dependents) {
-    app.dependents = []
-  }
-})
+
+
+const signaturePads = reactive<Record<number, any>>({});
+const consent = reactive<Record<number, boolean>>({});
+const paymentAuthorizations = ref<PaymentAuthorization[]>([]);
+const message = ref('');
+const error = ref('');
+
+onMounted(() => {
+  paymentAuthorizations.value = [
+    {
+      id: 1,
+      userId: 5,
+      amount: 150,
+      currency: 'USD',
+      paymentMethod: 'card',
+      fullName: 'John Doe',
+      email: 'john@example.com',
+    },
+  ];
+});
+
+watch(paymentAuthorizations, (auths) => {
+  auths.forEach((auth) => {
+    if (auth.plan && planPrices[auth.plan]) {
+      auth.amount = planPrices[auth.plan].oneTime; // sets one-time amount
+      auth.monthlyAmount = planPrices[auth.plan].monthly; // optional, for recurring
+    }
+  });
+}, { deep: true });
+
+
+
+
+
+
+
 
 const user = await useUser()
 let company = null
 
+async function generatePdf(auth: PaymentAuthorization, signatureDataUrl: string) {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595, 842]); // A4
+  const { height } = page.getSize();
 
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-
-
-
-
-
-
-
-
-async function submitForm(app: InsuranceApplication) {
-  const pad = signaturePads[app.id!]?.signaturePad
-
-  if (!pad || pad.isEmpty()) {
-    error.value = 'Please sign before submitting!'
-    return
-  }
-
-  if (!consent[app.id!]) {
-    error.value = 'You must consent to e-sign this paymentAuthorization.'
-    return
-  }
-
-  error.value = ''
-  message.value = ''
-
-  try {
-    const signatureDataUrl = pad.toDataURL()
-
-    // Generate PDF
-    const pdfDoc = await PDFDocument.create()
-    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-
-    // --- Page 1: All existing content except signature ---
-    const page1 = pdfDoc.addPage([612, 792])
-    const { height } = page1.getSize()
-
+  const companyName = 'Amerus Financial Inc.'; // replace with env var if needed
     // --- Embed logo ---
     const logoUrl = '/img/logo.png'
     const logoBytes = await fetch(logoUrl).then(res => res.arrayBuffer())
@@ -333,671 +305,249 @@ async function submitForm(app: InsuranceApplication) {
 
     
 
-    page1.drawImage(logoImage, { x: 10, y: height - 60, width: logoDims.width, height: logoDims.height })
-    page1.drawText("Small Business Health Insurance Application", { x: 100, y: height - 50, size: 20, font: helveticaBold })
-
-    // Group Info box
-    page1.drawRectangle({ x: 20, y: height - 220, width: 180, height: 140, borderColor: rgb(0, 0, 0), borderWidth: 1 })
-    page1.drawText("Group Information", { x: 40, y: height - 110, size: 14, font: helveticaBold })
-    page1.drawText(`Group #: ${app.groupNumber}`, { x: 40, y: height - 130, size: 12 })
-    page1.drawText(`Group Name: ${app.groupName}`, { x: 40, y: height - 150, size: 12 })
-    // page1.drawText(`Effective Date: ${app.effectiveDate || ""}`, { x: 40, y: height - 170, size: 12 })
-    // page1.drawText(`New Hire Waiting Period: ${app.waitingPeriod || ""}`, { x: 40, y: height - 190, size: 12 })
-
-
-
-    // Reasons for Enrollment box
-    page1.drawRectangle({ x: 210, y: height - 220, width: 380, height: 140, borderColor: rgb(0, 0, 0), borderWidth: 1 })
-    page1.drawText("Reasons for Enrollment (Mark all that apply)", { x: 230, y: height - 110, size: 14, font: helveticaBold })
-
-    const reasons = [
-    "New Group", "Open Enrollment", "New Hire", "New Application",
-    "Newborn", "Court Order", "Dependent Addition", "Loss of Coverage",
-    "Marriage", "Divorce", "Military Leave"
-  ]
-
-  const colX = 230, colY = height - 130, colSpacing = 120, rowSpacing = 15
-  const half = Math.ceil(reasons.length / 2)
-
-  reasons.forEach((reason, i) => {
-    const isSecondCol = i >= half
-    const x = isSecondCol ? colX + colSpacing : colX
-    const y = isSecondCol ? height - 130 - ((i - half) * rowSpacing) : colY - (i * rowSpacing)
-
-    // Draw empty checkbox
-    page1.drawRectangle({
-      x,
-      y: y - 2,
-      width: 10,
-      height: 10,
-      borderColor: rgb(0, 0, 0),
-      borderWidth: 1
-    })
-
-    // Label
-    page1.drawText(reason, { x: x + 15, y, size: 11 })
-
-    // ✅ If selected, draw an X inside the checkbox
-    if (app.reasons.includes(reason)) {
-      page1.drawText("X", { x: x + 2, y: y - 1, size: 10, font: helveticaBold })
-    }
-  })
-
-
-
-    
-   
-
-
-    // Employer Info Heading
-    const employerY = height - 250
-    page1.drawText("Employer Information", { 
-      x: 20, 
-      y: employerY, 
-      size: 16, 
-      font: helveticaBold 
-    })
-    page1.drawLine({ 
-      start: { x: 20, y: employerY - 3 }, 
-      end: { x: 592, y: employerY - 3 }, 
-      thickness: 1, 
-      color: rgb(0, 0, 0) 
-    })
-
-    if (user?.id) {
-      company = await useCompany(user.id)
-    }
-
-    // Row 1
-    let employerRowY = employerY - 20
-    page1.drawText("Employer:", { x: 20, y: employerRowY, size: 10, font: helveticaBold })
-    page1.drawText(company?.companyName || "", { x: 70, y: employerRowY, size: 10, font: helvetica })
-    page1.drawLine({ start: { x: 70, y: employerRowY - 2 }, end: { x: 280, y: employerRowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-    page1.drawText("Hire Date:", { x: 285, y: employerRowY, size: 10, font: helveticaBold })
-    page1.drawText(formatDate(app.hireDate) || "", { x: 335, y: employerRowY, size: 10, font: helvetica })
-    page1.drawLine({ start: { x: 335, y: employerRowY - 2 }, end: { x: 430, y: employerRowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-    page1.drawText("Rehire Date:", { x: 432, y: employerRowY, size: 10, font: helveticaBold })
-    page1.drawText(formatDate(app.rehireDate) || "", { x: 500, y: employerRowY, size: 10, font: helvetica })
-    page1.drawLine({ start: { x: 497, y: employerRowY - 2 }, end: { x: 592, y: employerRowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-    // Row 2
-    employerRowY -= 20
-    page1.drawText("Location:", { x: 20, y: employerRowY, size: 10, font: helveticaBold })
-    page1.drawText(app.location || "", { x: 65, y: employerRowY, size: 10, font: helvetica })
-    page1.drawLine({ start: { x: 65, y: employerRowY - 2 }, end: { x: 200, y: employerRowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-    page1.drawText("Is this a division?", { x: 220, y: employerRowY, size: 10, font: helveticaBold })
-
-    // Yes checkbox
-    page1.drawRectangle({ 
-      x: 310, 
-      y: employerRowY - 8, 
-      width: 10, 
-      height: 10, 
-      borderColor: rgb(0, 0, 0), 
-      borderWidth: 1 
-    })
-    page1.drawText("Yes", { x: 325, y: employerRowY, size: 10, font: helvetica })
-
-    // No checkbox
-    page1.drawRectangle({ 
-      x: 350, 
-      y: employerRowY - 8, 
-      width: 10, 
-      height: 10, 
-      borderColor: rgb(0, 0, 0), 
-      borderWidth: 1 
-    })
-    page1.drawText("No", { x: 365, y: employerRowY, size: 10, font: helvetica })
-
-    // Mark checkbox depending on value
-    if (app.isDivision) {
-      // Mark YES
-      page1.drawText("X", { x: 312, y: employerRowY - 7, size: 10, font: helveticaBold })
-    } else {
-      // Mark NO
-      page1.drawText("X", { x: 352, y: employerRowY - 7, size: 10, font: helveticaBold })
-    }
-
-
-    // Parent Company
-    page1.drawText("Parent Company:", { x: 380, y: employerRowY, size: 10, font: helveticaBold })
-    page1.drawText(app.parentCompany || "", { x: 465, y: employerRowY, size: 10, font: helvetica })
-    page1.drawLine({ start: { x: 460, y: employerRowY - 2 }, end: { x: 592, y: employerRowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-
-
-
-
-
-
-
-// Employee Info Heading
-const employeeY = employerRowY - 30
-page1.drawText("Employee Information", { 
-  x: 20, 
-  y: employeeY, 
-  size: 16, 
-  font: helveticaBold 
-})
-page1.drawLine({ 
-  start: { x: 20, y: employeeY - 3 }, 
-  end: { x: 592, y: employeeY - 3 }, 
-  thickness: 1, 
-  color: rgb(0, 0, 0) 
-})
-
-
-// Row 1
-let rowY = employeeY - 20
-page1.drawText("Last Name:", { x: 20, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.lastName || "", { x: 75, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 75, y: rowY - 2 }, end: { x: 140, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-page1.drawText("First Name:", { x: 140, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.firstName || "", { x: 200, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 200, y: rowY - 2 }, end: { x: 250, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-page1.drawText("Middle Name:", { x: 250, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.middleName || "", { x: 320, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 320, y: rowY - 2 }, end: { x: 350, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-page1.drawText("Job Title:", { x: 350, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.jobTitle || "", { x: 400, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 400, y: rowY - 2 }, end: { x: 500, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-//needs to be hours per week
-page1.drawText("Hrs/week:", { x: 505, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.hrsPerWeek || "", { x: 560, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 560, y: rowY - 2 }, end: { x: 592, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-
-
-// Row 2
-rowY -= 20
-page1.drawText("Phone Number:", { x: 20, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.phoneNumber || "", { x: 95, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 95, y: rowY - 2 }, end: { x: 240, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-page1.drawText("Email:", { x: 250, y: rowY, size: 10, font: helveticaBold })
-page1.drawText(app.email || "", { x: 290, y: rowY, size: 10, font: helvetica })
-page1.drawLine({ start: { x: 290, y: rowY - 2 }, end: { x: 592, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-
-
-
-
-
-
-// Row 3 - Address
-rowY -= 20
-
-// Label
-page1.drawText("Address:", { x: 20, y: rowY, size: 10, font: helveticaBold })
-
-// Full Address on one line
-const fullAddress = `${app.streetAddress || ""}, ${app.city || ""}, ${app.state || ""} ${app.zipCode || ""}`
-page1.drawText(fullAddress, { x: 70, y: rowY, size: 10, font: helvetica })
-
-// Underline
-page1.drawLine({ start: { x: 70, y: rowY - 2 }, end: { x: 592, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) })
-
-
-
-
-
-
-
-
-
-// Enrolling Heading
-let headingY = employeeY - 90
-page1.drawText("Enrolling Employee / Spouse / Domestic Partner* / Dependents", { 
-  x: 20, 
-  y: headingY, 
-  size: 16, 
-  font: helveticaBold 
-})
-page1.drawLine({ 
-  start: { x: 20, y: headingY - 3 }, 
-  end: { x: 592, y: headingY - 3 }, 
-  thickness: 1, 
-  color: rgb(0, 0, 0) 
-})
-
-
-// ---------------- Employee + Dependents Table ----------------
-const tableX = 20
-let tableY = employeeY - 130 // spacing under Employee Info
-const rowHeight = 28 // taller row for header to fit two lines
-
-// Define headers
-const headers = [
-  "", // blank column
-  "Name (Last, First, Middle)",
-  "Social Security # (User use only)",
-  "Date of Birth (MM/DD/YYYY)",
-  "Age",
-  "Gender",
-  "Weight",
-  "Height"
-]
-
-// Define column widths (fit into 592 exactly)
-const colWidths = [120, 100, 90, 90, 40, 40, 40, 52] // total = 592
-
-// ---- Draw Header Row ----
-let headerX = tableX
-headers.forEach((header, i) => {
-  page1.drawRectangle({
-    x: headerX,
-    y: tableY,
-    width: colWidths[i],
-    height: rowHeight,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1
-  })
-
-  // Split at "(" so anything inside parentheses goes on next line
-  const parts = header.split("(")
-  const mainText = parts[0].trim()
-  const subText = parts[1] ? "(" + parts[1] : ""
-
-  // Draw main text
-  page1.drawText(mainText, {
-    x: headerX + 2,
-    y: tableY + rowHeight - 12, // top line
-    size: 8,
-    font: helveticaBold
-  })
-
-  // Draw sub text if exists
-  if (subText) {
-    page1.drawText(subText, {
-      x: headerX + 2,
-      y: tableY + 6, // lower line
-      size: 7,
-      font: helvetica
-    })
-  }
-
-  headerX += colWidths[i]
-})
-
-// ---- Rows (Employee, Spouse/Domestic Partner*, Dependents) ----
-const rowLabels = [
-  "Employee",
-  "Spouse/Domestic Partner*"
-]
-
-rowLabels.forEach((label, rowIndex) => {
-  const y = tableY - (rowHeight * (rowIndex + 1))
-  let cellX = tableX
-
-  colWidths.forEach((w, colIndex) => {
-    // Draw cell outline
-    page1.drawRectangle({
-      x: cellX,
-      y: y,
-      width: w,
-      height: rowHeight,
-      borderColor: rgb(0, 0, 0),
-      borderWidth: 1
-    })
-
-    // Fill first column (row label)
-    if (colIndex === 0) {
-      page1.drawText(label, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-    }
-
-    // Fill Employee row
-    if (rowIndex === 0) {
-      switch (colIndex) {
-        case 1:
-          page1.drawText(`${app.lastName}, ${app.firstName} ${app.middleName}`, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 2:
-          page1.drawText(app.socialSecurityNumber, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 3:
-          page1.drawText(app.dateOfBirth, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 4:
-          page1.drawText(app.age, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 5:
-          page1.drawText(app.gender, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 6:
-          page1.drawText(app.weight, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 7:
-          page1.drawText(app.height, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-      }
-    }
-
-    // Fill Spouse row
-    if (rowIndex === 1) {
-      switch (colIndex) {
-        case 1:
-          page1.drawText(`${app.spouseLastName || ""}, ${app.spouseFirstName || ""} ${app.spouseMiddleName || ""}`, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 2:
-          page1.drawText(app.spouseSocialSecurityNumber || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 3:
-          page1.drawText(app.spouseDateOfBirth || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 4:
-          page1.drawText(app.spouseAge || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 5:
-          page1.drawText(app.spouseGender || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 6:
-          page1.drawText(app.spouseWeight || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-        case 7:
-          page1.drawText(app.spouseHeight || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-          break
-      }
-    }
-
-    cellX += w
-  })
-})
-
-// ---- Dependents ----
-app.dependents.forEach((dep, i) => {
-  const y = tableY - rowHeight * (i + 3) // start after employee & spouse rows
-  let cellX = tableX
-
-  colWidths.forEach((w, colIndex) => {
-    // Draw cell outline
-    page1.drawRectangle({
-      x: cellX,
-      y,
-      width: w,
-      height: rowHeight,
-      borderColor: rgb(0, 0, 0),
-      borderWidth: 1
-    })
-
-    // First column: Dependent label
-    if (colIndex === 0) {
-      page1.drawText("Dependent", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-    }
-
-    // Dependent data
-    switch (colIndex) {
-      case 1:
-        page1.drawText(`${dep.lastName}, ${dep.firstName}`, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-      case 2:
-        page1.drawText(dep.socialSecurityNumber || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-      case 3:
-        page1.drawText(dep.dateOfBirth || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-      case 4:
-        page1.drawText(dep.age || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-      case 5:
-        page1.drawText(dep.gender || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-      case 6:
-        page1.drawText(dep.weight || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-      case 7:
-        page1.drawText(dep.height || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
-        break
-    }
-
-    cellX += w
-  })
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // --- Page 2: Signature only ---
-    const page2 = pdfDoc.addPage([612, 792])
-    const { height: h2 } = page2.getSize()
-
-
-
-
-
-
-
-
-        
-
-// ---------------- Health Plan Options Section ----------------
+    page.drawImage(logoImage, { x: 50, y: height - 90, width: logoDims.width, height: logoDims.height })
+
+  // Title
+  page.drawText('Recurring Payment Authorization Form', {
+    x: 160,
+    y: height - 80,
+    size: 18,
+    font: fontBold,
+    color: rgb(0, 0.2, 0.6),
+  });
+
+  // Intro Paragraph
+  const introText = `
+I, ${auth.fullName}, authorize ${companyName} to charge my account as indicated below for payment of services or products as described. 
+I understand that this authorization is for a recurring subscription and will remain in effect until I cancel it in writing.`;
+
+  page.drawText(introText.trim(), {
+    x: 50,
+    y: height - 130,
+    size: 12,
+    font,
+    lineHeight: 14,
+    maxWidth: 480,
+  });
+let y = height - 210; // starting Y position
+
+
+
+
+
+// Common settings
+let rowY = y; // current Y position
+const startX = 50;
+const underlineWidthRow1and2 = 250; // for longer names/company
+const underlineWidthRow3 = 100; // for amount/date/month blanks
+
+// ------------------ Row 1 ------------------
+const label1Row1 = "I, ";
+const valueRow1 = auth.fullName || "";
+const label2Row1 = " (Cardholder), authorize";
+
+page.drawText(label1Row1, { x: startX, y: rowY, size: 12, font: fontBold });
+const valueXRow1 = startX + font.widthOfTextAtSize(label1Row1, 12);
+page.drawText(valueRow1, { x: valueXRow1, y: rowY, size: 12, font });
+page.drawLine({
+  start: { x: valueXRow1, y: rowY - 2 },
+  end: { x: valueXRow1 + underlineWidthRow1and2, y: rowY - 2 },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+});
+const label2XRow1 = valueXRow1 + underlineWidthRow1and2 + 5;
+page.drawText(label2Row1, { x: label2XRow1, y: rowY, size: 12, font });
+
+// ------------------ Row 2 ------------------
+rowY -= 30;
+
+const valueRow2 = companyName;
+const label2Row2 = " (Merchant) to charge my credit/debit card for";
+
+page.drawText("", { x: startX, y: rowY, size: 12, font: fontBold }); // empty label
+const valueXRow2 = startX; // no label offset
+page.drawText(valueRow2, { x: valueXRow2, y: rowY, size: 12, font });
+page.drawLine({
+  start: { x: valueXRow2, y: rowY - 2 },
+  end: { x: valueXRow2 + underlineWidthRow1and2, y: rowY - 2 },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+});
+const label2XRow2 = valueXRow2 + underlineWidthRow1and2 + 5;
+page.drawText(label2Row2, { x: label2XRow2, y: rowY, size: 12, font });
+
+// ------------------ Row 3 (One-time + Recurring payment) ------------------
+rowY -= 30; // move down from Row 2
+
+const underlineWidthAmount = 150; // wider underline for amounts
+const underlineWidthDate = 100;   // underline for date/month
+
+let xPos = startX;
+
+// --- One-time payment ---
+const labelOneTime = "a one-time payment of ";
+const valueOneTime = auth.amount && auth.currency ? `$${auth.amount.toFixed(2)}` : "";
+
+const labelOneTimeEnd = " and charge my credit/debit card for";
+
+// Label text
+page.drawText(labelOneTime, { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(labelOneTime, 12);
+
+// Amount underline
+page.drawText(valueOneTime, { x: xPos, y: rowY, size: 12, font });
+page.drawLine({
+  start: { x: xPos, y: rowY - 2 },
+  end: { x: xPos + underlineWidthAmount, y: rowY - 2 },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+});
+xPos += underlineWidthAmount;
+
+// End label
+page.drawText(labelOneTimeEnd, { x: xPos, y: rowY, size: 12, font });
+
+// --- Recurring payment ---
+rowY -= 30; // move down for recurring payment
+xPos = startX;
+
+const labelRecurring1 = "$";
+const valueRecurring = '24.95';
+const labelRecurring2 = " on the ";
+const valueDate = new Date().toLocaleDateString();
+const labelRecurring3 = " of each ";
+const valueMonth = "month";
+
+// $Amount
+page.drawText(labelRecurring1, { x: xPos, y: rowY, size: 12, font: fontBold });
+xPos += font.widthOfTextAtSize(labelRecurring1, 12);
+page.drawText(valueRecurring, { x: xPos, y: rowY, size: 12, font });
+page.drawLine({
+  start: { x: xPos, y: rowY - 2 },
+  end: { x: xPos + underlineWidthAmount, y: rowY - 2 },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+});
+xPos += underlineWidthAmount;
+
+// " on the "
+page.drawText(labelRecurring2, { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(labelRecurring2, 12);
+
+// Date underline
+page.drawText(valueDate, { x: xPos, y: rowY, size: 12, font });
+page.drawLine({
+  start: { x: xPos, y: rowY - 2 },
+  end: { x: xPos + underlineWidthDate, y: rowY - 2 },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+});
+xPos += underlineWidthDate;
+
+// " of each "
+page.drawText(labelRecurring3, { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(labelRecurring3, 12);
+
+// Month underline
+page.drawText(valueMonth, { x: xPos, y: rowY, size: 12, font });
+page.drawLine({
+  start: { x: xPos, y: rowY - 2 },
+  end: { x: xPos + underlineWidthDate, y: rowY - 2 },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+});
+
+// ------------------ Row 4: Billing Information ------------------
+rowY -= 40;
+xPos = startX;
 
 // Heading
-let healthY = 750
+page.drawText("Billing Information", { x: startX, y: rowY, size: 14, font: fontBold });
 
-page2.drawText("Health Plan Options", {
-  x: 20,
-  y: healthY,
-  size: 16,
-  font: helveticaBold
-})
+// Move down for actual fields
+rowY -= 25;
+xPos = startX;
 
-page2.drawLine({
-  start: { x: 20, y: healthY - 3 },
-  end: { x: 592, y: healthY - 3 },
-  thickness: 1,
-  color: rgb(0, 0, 0)
-})
+// Billing Address
+page.drawText("Billing Address: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize("Billing Address: ", 12);
+page.drawText(auth.billingAddress || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 300, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-// Description text
-const descY = healthY - 20
-page2.drawText(
-  "Please select the plan you would like to enroll in. For more information on the plans listed below, please contact your insurance agent or broker to obtain a copy of the Plan Highlights.",
-  { x: 20, y: descY, size: 10, font: helvetica }
-)
+// City / State / Zip
+rowY -= 30;
+xPos = startX;
 
-// Table setup
-const planTableY = descY - 30
-const planTableX = 20
-const planRowHeight = 20
+page.drawText("City: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize("City: ", 12);
+page.drawText(auth.city || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 100, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
+xPos += 100;
 
-// Plan headers
-const planHeaders = ["Select", "Plan Name / Type"]
-const planColWidths = [50, 522] 
+page.drawText(" State: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(" State: ", 12);
+page.drawText(auth.state || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 50, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
+xPos += 50;
 
-// Draw header row
-let planHeaderX = planTableX
-planHeaders.forEach((header, i) => {
-  page2.drawRectangle({
-    x: planHeaderX,
-    y: planTableY,
-    width: planColWidths[i],
-    height: planRowHeight,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1
-  })
+page.drawText(" Zip: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(" Zip: ", 12);
+page.drawText(auth.zip || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 70, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-  page2.drawText(header, {
-    x: planHeaderX + 2,
-    y: planTableY + 6,
-    size: 9,
-    font: helveticaBold
-  })
-
-  planHeaderX += planColWidths[i]
-})
-
-// Plan rows (display name vs db value)
-const planRows = [
-  { name: "Plan 1", value: "plan1" },
-  { name: "Plan 2", value: "plan2" }
-]
-
-// Use `app.healthPlan` from DB to check the right one
-planRows.forEach((row, rowIndex) => {
-  const y = planTableY - planRowHeight * (rowIndex + 1)
-  let cellX = planTableX
-
-  // Checkbox cell
-  page2.drawRectangle({
-    x: cellX,
-    y,
-    width: planColWidths[0],
-    height: planRowHeight,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1
-  })
-  page2.drawRectangle({ 
-    x: cellX + 15, 
-    y: y + 5, 
-    width: 10, 
-    height: 10, 
-    borderColor: rgb(0, 0, 0), 
-    borderWidth: 1 
-  })
-
-  // ✅ Draw checkmark if this plan is selected in DB
-  if (app.healthPlan === row.value) {
-    page2.drawLine({
-      start: { x: cellX + 15, y: y + 10 },
-      end: { x: cellX + 20, y: y + 5 },
-      thickness: 1.5,
-      color: rgb(0, 0, 0)
-    })
-    page2.drawLine({
-      start: { x: cellX + 20, y: y + 5 },
-      end: { x: cellX + 28, y: y + 15 },
-      thickness: 1.5,
-      color: rgb(0, 0, 0)
-    })
-  }
-
-  // Plan name cell
-  cellX += planColWidths[0]
-  page2.drawRectangle({
-    x: cellX,
-    y,
-    width: planColWidths[1],
-    height: planRowHeight,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1
-  })
-  page2.drawText(row.name, { 
-    x: cellX + 5, 
-    y: y + 6, 
-    size: 9, 
-    font: helvetica 
-  })
-})
-
-
-
-
-
-
-
-
-
-
-
-// ---------------- Vision and Dental Plan Options Section ----------------
-
-// Start below Health section (adjust spacing as needed)
-let visionDentalY = planTableY - (planRowHeight * (planRows.length + 3))
+// ------------------ Row 5: Payment Card Information ------------------
+rowY -= 40;
+xPos = startX;
 
 // Heading
-page2.drawText("Vision and Dental Plan Options", {
-  x: 20,
-  y: visionDentalY,
-  size: 16,
-  font: helveticaBold
-})
+page.drawText("Payment Card Information", { x: startX, y: rowY, size: 14, font: fontBold });
+rowY -= 25; // spacing below heading
+xPos = startX;
 
-page2.drawLine({
-  start: { x: 20, y: visionDentalY - 3 },
-  end: { x: 592, y: visionDentalY - 3 },
-  thickness: 1,
-  color: rgb(0, 0, 0)
-})
+const cardTypes = ["Visa", "MasterCard", "American Express", "Discover"];
+const boxSize = 12; // size of checkbox
+const gap = 10; // space between box and label
 
-// Description text
-const visionDescY = visionDentalY - 20
-page2.drawText(
-  "Do you like to enroll in the vision/dental plan? For more information on the vision/dental plan listed below, please contact your insurance agent or broker.",
-  { x: 20, y: visionDescY, size: 10, font: helvetica }
-)
-
-// Table setup
-const visionTableY = visionDescY - 30
-const visionTableX = 20
-const visionRowHeight = 20
-
-// Plan headers
-const visionHeaders = ["Select", "Plan Name / Type"]
-const visionColWidths = [50, 522] 
-
-// Draw header row
-let visionHeaderX = visionTableX
-visionHeaders.forEach((header, i) => {
-  page2.drawRectangle({
-    x: visionHeaderX,
-    y: visionTableY,
-    width: visionColWidths[i],
-    height: visionRowHeight,
+cardTypes.forEach((card) => {
+  // Draw checkbox rectangle
+  page.drawRectangle({
+    x: xPos,
+    y: rowY - boxSize + 2,
+    width: boxSize,
+    height: boxSize,
     borderColor: rgb(0, 0, 0),
-    borderWidth: 1
-  })
-  page2.drawText(header, {
-    x: visionHeaderX + 2,
-    y: visionTableY + 6,
-    size: 9,
-    font: helveticaBold
-  })
-  visionHeaderX += visionColWidths[i]
-})
+    borderWidth: 1,
+    color: auth.cardType === card ? rgb(0, 0, 0) : undefined, // fill if selected
+  });
 
-// Plan rows (update values to vision/dental plans)
-const visionRows = [
-  { name: "Vision & Dental Plan", value: "vd1" },
-]
+  // Draw label
+  const labelX = xPos + boxSize + 5;
+  page.drawText(card, { x: labelX, y: rowY, size: 12, font });
 
-// Use `app.visionDentalPlan` from DB
-visionRows.forEach((row, rowIndex) => {
-  const y = visionTableY - visionRowHeight * (rowIndex + 1)
-  let cellX = visionTableX
+  // Move xPos for the next checkbox
+  xPos = labelX + font.widthOfTextAtSize(card, 12) + gap;
+});
+// Card Number
+rowY -= 25;
+xPos = startX;
+page.drawText("Card Number: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize("Card Number: ", 12);
+page.drawText(auth.cardNumber || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 200, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-  // Checkbox cell
-  page2.drawRectangle({ x: cellX, y, width: visionColWidths[0], height: visionRowHeight, borderColor: rgb(0, 0, 0), borderWidth: 1 })
-  page2.drawRectangle({ x: cellX + 15, y: y + 5, width: 10, height: 10, borderColor: rgb(0, 0, 0), borderWidth: 1 })
+// Expiration
+xPos += 200 + 10; // gap after card number
+page.drawText(" Expiration: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(" Expiration: ", 12);
+page.drawText(auth.expiration || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 60, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-  // ✅ Draw checkmark if selected
-  if (app.visionAndDentalPlan === true) {
-    page2.drawLine({ start: { x: cellX + 15, y: y + 10 }, end: { x: cellX + 20, y: y + 5 }, thickness: 1.5, color: rgb(0, 0, 0) })
-    page2.drawLine({ start: { x: cellX + 20, y: y + 5 }, end: { x: cellX + 28, y: y + 15 }, thickness: 1.5, color: rgb(0, 0, 0) })
-  }
-
-  // Plan name cell
-  cellX += visionColWidths[0]
-  page2.drawRectangle({ x: cellX, y, width: visionColWidths[1], height: visionRowHeight, borderColor: rgb(0, 0, 0), borderWidth: 1 })
-  page2.drawText(row.name, { x: cellX + 5, y: y + 6, size: 9, font: helvetica })
-})
+// CVV
+xPos += 60 + 10; // gap after expiration
+page.drawText(" CVV: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize(" CVV: ", 12);
+page.drawText(auth.cvv || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 50, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
 
 
@@ -1005,248 +555,113 @@ visionRows.forEach((row, rowIndex) => {
 
 
 
+  // Legal Statement
+  const legalText = `
+I authorize ${companyName} to make recurring charges to my account as indicated above for the amount stated. 
+I understand that I may cancel this authorization at any time by providing written notice prior to the next scheduled payment. 
+I confirm that I am an authorized user of this account and that I will not dispute these payments with my bank or credit card company 
+so long as the transactions correspond to the terms indicated in this agreement.`;
+
+  page.drawText(legalText.trim(), {
+    x: 50,
+    y: y - 300,
+    size: 11,
+    font,
+    lineHeight: 14,
+    maxWidth: 480,
+  });
 
 
 
 
 
 
-    
-    // ---------------- Ancillary Plans Section ----------------
-if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
-  healthY -= 280
-  page2.drawText("Ancillary Plans", { 
-    x: 20, 
-    y: healthY, 
-    size: 16, 
-    font: helveticaBold 
-  })
-  page2.drawLine({ 
-    start: { x: 20, y: healthY - 3 }, 
-    end: { x: 592, y: healthY - 3 }, 
-    thickness: 1, 
-    color: rgb(0, 0, 0) 
-  })
+    // Signature
+  page.drawText('Signature:', { x: 50, y: y - 430, size: 12, font: fontBold });
+  const pngImage = await pdfDoc.embedPng(signatureDataUrl);
+  page.drawImage(pngImage, { x: 130, y: y - 510, width: 200, height: 80 });
 
-  healthY -= 20
-  app.ancillaryPlans.forEach((plan, idx) => {
-    page2.drawText(`${idx + 1}. ${plan.planName || ""} - ${plan.product || ""} - $${plan.price ?? ""}`, {
-      x: 30,
-      y: healthY,
-      size: 12,
-      font: helvetica
-    })
-    healthY -= 15
-  })
+  // Date Signed
+  page.drawText(`Date Signed: ${new Date().toLocaleString()}`, {
+    x: 50,
+    y: y - 530,
+    size: 10,
+    font,
+    color: rgb(0.3, 0.3, 0.3),
+  });
+
+
+
+
+  
+
+  // Footer
+  page.drawText(
+    'By signing electronically, you confirm your consent to recurring charges and acknowledge this as a legal signature under the E-Sign Act.',
+    {
+      x: 50,
+      y: 80,
+      size: 10,
+      font,
+      lineHeight: 12,
+      color: rgb(0.25, 0.25, 0.25),
+      maxWidth: 480,
+    }
+  );
+
+  const pdfBytes = await pdfDoc.save();
+  return new Blob([pdfBytes], { type: 'application/pdf' });
 }
 
 
 
+async function submitForm(auth: PaymentAuthorization) {
+  const pad = signaturePads[auth.id];
+  if (!pad || pad.isEmpty()) {
+    error.value = 'Please sign before submitting.';
+    return;
+  }
+  if (!consent[auth.id]) {
+    error.value = 'You must consent to e-sign this authorization.';
+    return;
+  }
 
+  error.value = '';
+  message.value = '';
 
+  const signatureDataUrl = pad.toDataURL();
+  const pdfBlob = await generatePdf(auth, signatureDataUrl);
 
+  const formData = new FormData();
+  formData.append('pdf', pdfBlob, 'payment_authorization.pdf');
+  formData.append('signatureImageUrl', signatureDataUrl);
+  formData.append('amount', auth.amount.toString());
+  formData.append('currency', auth.currency);
+  formData.append('paymentMethod', auth.paymentMethod);
+  formData.append('description', auth.description || '');
+  formData.append('fullName', auth.fullName);
+  formData.append('email', auth.email);
 
-// ---------------- Total Section ----------------
-// const pageWidth = 612; // standard page width
-// const rightMargin = 20;
-// const totalX = pageWidth - rightMargin - 200; // shift total section to the right (200px width)
-
-// healthY -= 300
-// page2.drawText("Total", { 
-//   x: totalX, 
-//   y: healthY, 
-//   size: 16, 
-//   font: helveticaBold 
-// })
-
-// // 🧮 Calculate total
-// let total = 0
-// if (app.healthPlan === "plan1") total += 100
-// else if (app.healthPlan === "plan2") total += 200
-
-// if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
-//   app.ancillaryPlans.forEach(plan => total += Number(plan.price) || 0)
-// }
-
-// const nbbaFee = 24.95
-// total += nbbaFee
-
-// // Print line items on the right
-// healthY -= 20
-// page2.drawText(`Health Plan: $${app.healthPlan === "plan1" ? "100" : "200"}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
-
-// if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
-//   app.ancillaryPlans.forEach(plan => {
-//     healthY -= 15
-//     page2.drawText(`${plan.planName || ""}: $${plan.price ?? "0"}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
-//   })
-// }
-
-// healthY -= 15
-// page2.drawText(`NBBA Fee: $${nbbaFee.toFixed(2)}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
-
-// // Final total
-// healthY -= 25
-// page2.drawText(`Grand Total: $${total.toFixed(2)}`, { 
-//   x: totalX + 20, 
-//   y: healthY, 
-//   size: 14, 
-//   font: helveticaBold 
-// })
-
-
-
-
-
-    
-    
-
-
-
-
-
-
-    // rowY -= 20
-    // page2.drawText(`Health Plan: ${app.healthPlan}`, { x: 40, y: height - 540, size: 10 })
-    // page2.drawText(`Dental Plan: ${app.dentalPlan || "N/A"}`, { x: 300, y: height - 540, size: 10 })
-    // page2.drawText(`Vision Plan: ${app.visionPlan || "N/A"}`, { x: 40, y: height - 580, size: 10 })
-    // page2.drawText(`Life/Ancillary: ${app.lifeAncillaryPlan || "N/A"}`, { x: 300, y: height - 580, size: 10 })
-
-
-   // Coordinates and dimensions
-const sigLabelX = 40
-const sigLabelY = 50
-const sigBoxX = sigLabelX + 150 // more space between label and box
-const sigBoxY = 40              // align roughly with label
-const sigWidth = 250
-const sigHeight = 60            // taller box
-
-// Draw the label text
-page2.drawText("Employee Signature:", {
-  x: sigLabelX,
-  y: sigLabelY,
-  size: 12,
-  font: helveticaBold
-})
-
-// Draw the rectangle (box) for the signature
-page2.drawRectangle({
-  x: sigBoxX,
-  y: sigBoxY,
-  width: sigWidth,
-  height: sigHeight,
-  borderColor: rgb(0, 0, 0),
-  borderWidth: 1,
-  color: rgb(1, 1, 1) // white fill
-})
-
-// Embed the signature image inside the box
-if (signatureDataUrl) {
-  const pngBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer())
-  const pngImage = await pdfDoc.embedPng(pngBytes)
-  const pngDims = pngImage.scale(0.25)
-
-  // Draw the signature image inside the box
-  page2.drawImage(pngImage, {
-    x: sigBoxX + 5, // padding from left
-    y: sigBoxY + 5, // padding from bottom
-    width: pngDims.width,
-    height: pngDims.height
-  })
-}
-
-
-
-    const pdfBytes = await pdfDoc.save()
-
-    // Upload PDF
-    const formData = new FormData()
-    formData.append('pdf', new Blob([pdfBytes], { type: 'application/pdf' }))
-    formData.append('applicationId', String(app.id))
-
-    const authToken = useCookie('auth_token').value
-    const res = await fetch('/api/payment-authorization/sign', {
-      method: 'POST',
-      body: formData,
-      headers: { Authorization: `Bearer ${authToken}` }
-    })
-
-    if (!res.ok) throw new Error(await res.text())
-    const data = await res.json()
-
-    message.value = 'Application signed and PDF uploaded!'
-    pdfDownloadUrl.value = data.pdfUrl
-    pad.clear()
-    app.pdfUrl = data.pdfUrl
-
+  try {
+    const authToken = useCookie('auth_token').value;
+    const res = await axios.post('/api/payment-authorization/sign', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+    auth.pdfUrl = res.data.pdfUrl;
+    message.value = 'Payment authorization signed successfully!';
+    emit("completed")
   } catch (err: any) {
-    console.error(err)
-    error.value = 'Failed to submit paymentAuthorization'
+    console.error(err);
+    error.value = err.response?.data?.message || err.message || 'Failed to submit';
   }
-}
-
-// Format helper (safe for null/undefined)
-const formatDate = (date: Date | string | null) => {
-  if (!date) return ""
-  const d = new Date(date)
-  return d.toISOString().split("T")[0] // keeps only YYYY-MM-DD
-}
-
-function downloadPdf() {
-  if (!pdfDownloadUrl.value) return
-  window.open(pdfDownloadUrl.value, '_blank')
 }
 
 function downloadExistingPdf(url: string) {
-  window.open(url, '_blank')
+  window.open(url, '_blank');
 }
-
-function formatForDateInput(dateStr: string | null | undefined): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  const month = (d.getMonth() + 1).toString().padStart(2, '0')
-  const day = d.getDate().toString().padStart(2, '0')
-  const year = d.getFullYear()
-  return `${year}-${month}-${day}`
-}
-
-
-onMounted(async () => {
-  try {
-    const authToken = useCookie('auth_token').value
-    console.log('Auth token:', authToken)
-
-    const res: InsuranceApplication[] = await $fetch('/api/payment-authorization/my', {
-      headers: { Authorization: `Bearer ${authToken}` }
-    })
-    
-    console.log('Raw response from API:', res)
-
-    paymentAuthorizations.value = res.map((app, index) => {
-      console.log(`Processing paymentAuthorization #${index}:`, app)
-
-      const normalized = {
-        ...app,
-        dateOfBirth: app.dateOfBirth
-          ? new Date(app.dateOfBirth).toISOString().split('T')[0]
-          : '',
-        reasons: Array.isArray(app.reasons)
-          ? app.reasons
-          : app.reasons
-            ? app.reasons.split(',').map(r => r.trim())
-            : []
-      }
-
-      console.log(`Normalized paymentAuthorization #${index}:`, normalized)
-      return normalized
-    }) as any
-
-    console.log('All normalized paymentAuthorizations:', paymentAuthorizations.value)
-  } catch (err: any) {
-    console.error('Error fetching paymentAuthorizations:', err)
-  }
-})
-
 
 
 </script>

@@ -69,10 +69,10 @@ export default defineEventHandler(async (event) => {
     const documentHash = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
 
     // Save IP and signer in audit trail
-    await prisma.paymentAuthorizationAuditTrail.create({
+    await prisma.auditTrail.create({
       data: {
         userId: session.user.id,
-        paymentAuthorizationId: Number(applicationId),
+        insuranceApplicationId: Number(applicationId),
         ip: String(ip),
         signer: `${session.user.firstName} ${session.user.lastName}`,
         email: session.user.email,
@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
     });
 
     // Update application with PDF URL
-    const updatedApplication = await prisma.paymentAuthorization.update({
+    const updatedApplication = await prisma.insuranceApplication.update({
       where: { id: Number(applicationId) },
       data: { pdfUrl },
     });

@@ -6,70 +6,34 @@
       Loading applications...
     </div>
 
-    <div v-else-if="applications.length === 0" class="text-gray-500 dark:text-gray-300">
-      No applications found.
+    <div v-else-if="applications.length === 0 && !hasPaymentAuth" class="text-gray-500 dark:text-gray-300">
+      No applications or payment authorizations found.
     </div>
 
-<!-- Show form if there is NO saved application -->
-<InsuranceProductForm
-  v-if="loggedInUser && (!application || application.id === null)"
-  :key="loggedInUser.id"
-  :userId="loggedInUser.id"
-/>
+    <!-- 1️⃣ Show Payment Authorization FIRST if not signed -->
+    <PaymentAuthorizationForm
+      v-if="loggedInUser && !hasPaymentAuth"
+      :key="`pay-${loggedInUser.id}`"
+      :userId="loggedInUser.id"
+      @completed="onPaymentCompleted"
+    />
 
-<!-- Show sign form if application EXISTS -->
-<EmployeeSignApplication
-  v-else-if="loggedInUser && application && application.id !== null"
-  :key="`sign-${loggedInUser.id}`"
-  :application="application"
-/>
+    <!-- 2️⃣ Show Application Form ONLY if payment is authorized -->
+    <InsuranceProductForm
+      v-else-if="loggedInUser && hasPaymentAuth && (!application?.id || application.id === null)"
+      :key="`app-${loggedInUser.id}`"
+      :userId="loggedInUser.id"
+    />
 
-
-    <!-- <table v-else class="w-full table-auto border-collapse">
-      <thead>
-        <tr class="bg-gray-100 dark:bg-[#142610] text-left">
-          <th class="p-2 border-b">Application Name</th>
-          <th class="p-2 border-b">Description</th>
-          <th class="p-2 border-b">Status</th>
-          <th class="p-2 border-b">Requested At</th>
-          <th class="p-2 border-b">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="app in applications"
-          :key="app.id"
-          class="hover:bg-gray-50 dark:hover:bg-[#566051]"
-        >
-          <td class="p-2 border-b break-words">{{ app.name }}</td>
-          <td class="p-2 border-b break-words">{{ app.description }}</td>
-          <td class="p-2 border-b">
-            <span
-              :class="{
-                'text-yellow-600': app.status === 'PENDING',
-                'text-green-600': app.status === 'APPROVED',
-                'text-red-600': app.status === 'REJECTED'
-              }"
-            >
-              {{ app.status }}
-            </span>
-          </td>
-          <td class="p-2 border-b">{{ formatDate(app.requestedAt) }}</td>
-          <td class="p-2 border-b">
-            <button
-              v-if="app.status === 'PENDING'"
-              @click="markApproved(app.id)"
-              class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-            >
-              Approve
-            </button>
-            <span v-else class="text-gray-500">—</span>
-          </td>
-        </tr>
-      </tbody>
-    </table> -->
+    <!-- 3️⃣ Show Employee Sign ONLY if both exist -->
+    <EmployeeSignApplication
+      v-else-if="loggedInUser && application?.id && hasPaymentAuth"
+      :key="`sign-${loggedInUser.id}`"
+      :application="application"
+    />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
@@ -82,65 +46,62 @@ interface Application {
   requestedAt: string
 }
 
-const applications = ref<Application[]>([])  // will come from API
-const application = ref<Application | null>(null) // single selected app
+const applications = ref<Application[]>([])
+const application = ref<Application | null>(null)
 const loading = ref(true)
-
 const loggedInUser = ref<any>(null)
+const hasPaymentAuth = ref(false)
+
 const authCookie = useAuthCookie()
 
-// Fetch logged-in user
 async function getLoggedInUser() {
   try {
-    if (!authCookie.value) {
-      console.error("Auth cookie is missing.")
-      return null
-    }
-    console.log("Fetching fresh user data...")
+    if (!authCookie.value) return null
     const response = await $fetch(`/api/user`, {
       headers: { Authorization: `Bearer ${authCookie.value}` },
     })
-    console.log("✅ User fetched:", response)
     return response.user || response
   } catch (error: any) {
-    console.error("Error in getLoggedInUser:", error.message || error)
+    console.error("Error fetching user:", error)
     return null
   }
 }
 
-const formatDate = (dateStr: string) => new Date(dateStr).toLocaleString()
-
-const markApproved = (id: number) => {
-  const app = applications.value.find(a => a.id === id)
-  if (app) app.status = 'APPROVED'
-}
-
 onMounted(async () => {
   loading.value = true
-
   loggedInUser.value = await getLoggedInUser()
-  console.log("🔹 loggedInUser:", loggedInUser.value?.id)
-
-  // Fetch all applications for this user
-  applications.value = await $fetch("/api/applications/my")
-
-  if (applications.value.length > 0) {
-    application.value = applications.value[0] // pick first
-  } else {
-    // create blank one
-    application.value = {
-      id: null,
-      status: "PENDING",
-      name: "",
-      description: "",
-      requestedAt: new Date().toISOString(),
-    }
+  if (!loggedInUser.value) {
+    loading.value = false
+    return
   }
+
+  // Fetch applications
+  const apps = await $fetch("/api/applications/my")
+  applications.value = apps
+  application.value = apps.length > 0 ? apps[0] : {
+    id: null,
+    name: "",
+    description: "",
+    status: "PENDING",
+    requestedAt: new Date().toISOString(),
+  }
+
+  // Fetch payment authorizations
+  const paymentAuths = await $fetch("/api/payment-authorization/my")
+  hasPaymentAuth.value = Array.isArray(paymentAuths) && paymentAuths.length > 0
 
   loading.value = false
 })
-</script>
 
+async function onPaymentCompleted() {
+  // Re-fetch payment authorizations
+  const paymentAuths = await $fetch("/api/payment-authorization/my")
+  hasPaymentAuth.value = Array.isArray(paymentAuths) && paymentAuths.length > 0
+}
+
+
+
+</script>
 
 <style scoped>
 table {
