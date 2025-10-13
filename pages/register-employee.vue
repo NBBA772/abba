@@ -141,6 +141,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { loginWithEmail } from '~/composables/useAuth'
 
 const form = ref({
   businessCode: '',
@@ -154,14 +155,22 @@ const form = ref({
 
 async function joinCompany() {
   try {
-    const response = await $fetch('/api/register-employee', {
+    // Register the employee
+    await $fetch('/api/register-employee', {
       method: 'POST',
       body: form.value,
     })
 
-    alert('Successfully joined the company!')
-    console.log(response)
-    window.location.href = '/login'
+    // Auto-login after registration
+    const loginResult = await loginWithEmail(form.value.username, form.value.password)
+    if (loginResult.hasErrors) {
+      alert('Registered, but failed to auto-login. Please login manually.')
+      window.location.href = '/login'
+      return
+    }
+
+    // Redirect handled by loginWithEmail (to /dashboard)
+    // Optionally, show a welcome message or do nothing here
   } catch (err: any) {
     console.error('Error registering employee:', err)
     alert(err?.data?.statusMessage || 'Failed to join company')
