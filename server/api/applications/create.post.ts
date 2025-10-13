@@ -58,28 +58,28 @@ export default defineEventHandler(async (event) => {
       ancillaryPlans = []
     } = body
 
-    if (
-      !userId ||
-      !firstName ||
-      !lastName ||
-      !phoneNumber ||
-      !email ||
-      !jobTitle ||
-      !hrsPerWeek ||
-      !hireDate ||
-      isDivision === undefined ||
-      !age ||
-      !gender ||
-      !weight ||
-      !height ||
-      !socialSecurityNumber ||
-      !dateOfBirth
-    ) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Required fields missing',
-      })
-    }
+    // if (
+    //   !userId ||
+    //   !firstName ||
+    //   !lastName ||
+    //   !phoneNumber ||
+    //   !email ||
+    //   !jobTitle ||
+    //   !hrsPerWeek ||
+    //   !hireDate ||
+    //   isDivision === undefined ||
+    //   !age ||
+    //   !gender ||
+    //   !weight ||
+    //   !height ||
+    //   !socialSecurityNumber ||
+    //   !dateOfBirth
+    // ) {
+    //   throw createError({
+    //     statusCode: 400,
+    //     statusMessage: 'Required fields missing',
+    //   })
+    // }
 
     // Optional role check
     if (

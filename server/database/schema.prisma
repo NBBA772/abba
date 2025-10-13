@@ -106,11 +106,11 @@ model InsuranceApplication {
   groupNumber        String
   groupName          String
 
-  firstName          String
-  lastName           String
+  firstName          String?
+  lastName           String?
   middleName         String?
-  phoneNumber        String
-  email              String
+  phoneNumber        String?
+  email              String?
 
   spouseFirstName            String?
   spouseMiddleName           String?
@@ -127,22 +127,22 @@ model InsuranceApplication {
   state              String
   zipCode            String
 
-  hrsPerWeek         String
-  jobTitle           String
+  hrsPerWeek         String?
+  jobTitle           String?
  
 
-  socialSecurityNumber String
-  dateOfBirth        DateTime
-  hireDate           DateTime
+  socialSecurityNumber String?
+  dateOfBirth        DateTime?
+  hireDate           DateTime?
   rehireDate         DateTime?
-  location           String
+  location           String?
 
   isDivision          Boolean
   parentCompany       String?
-  age                 String
-  gender              String
-  weight              String
-  height              String
+  age                 String?
+  gender              String?
+  weight              String?
+  height              String?
 
   healthPlan         String?
   visionAndDentalPlan Boolean?
