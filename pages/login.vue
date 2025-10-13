@@ -21,9 +21,11 @@
               role="alert"
             >
               <ul>
-                <li v-for="[key, value] in errors" :key="key">
+                <ul>
+                <li v-for="[key, value] in errorEntries" :key="key">
                   {{ value.message }}
                 </li>
+              </ul>
               </ul>
             </div>
 
@@ -40,7 +42,7 @@
                   required
                   placeholder="Username or Email"
                   class="dark:bg-slate-500 dark:text-white dark:placeholder-white w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  :class="errors?.has('username') ? 'border-red-500' : ''"
+                  :class="hasError('username') ? 'border-red-500' : ''"
                 />
               </div>
 
@@ -55,7 +57,7 @@
                   required
                   placeholder="Password"
                   class="dark:bg-slate-500 dark:text-white dark:placeholder-white w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  :class="errors?.has('password') ? 'border-red-500' : ''"
+                  :class="hasError('password') ? 'border-red-500' : ''"
                 />
               </div>
 
@@ -171,18 +173,26 @@
 
 
 <script setup lang="ts">
-import { ref } from '@vue/reactivity'
+import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import { loginWithEmail } from '~/composables/useAuth'
 import { Icon } from '#components'
+import { useNuxtApp } from '#app'
 
 const usernameOrEmail = ref('')
 const password = ref('')
 
-const errors: Ref<Map<string, { message: InputValidation }> | undefined> = ref(
-  new Map<string, { message: InputValidation }>()
-)
+const errors: Ref<any> = ref(undefined)
 let response: FormValidation
+
+const errorEntries = computed(() => {
+  const errorObj = errors.value?.errors || errors.value
+  if (!errorObj) return []
+  if (typeof errorObj.entries === 'function') {
+    return Array.from(errorObj.entries())
+  }
+  return Object.entries(errorObj)
+})
 
 definePageMeta({
   middleware: 'guest',
@@ -190,6 +200,32 @@ definePageMeta({
 
 async function postLoginForm() {
   response = await loginWithEmail(usernameOrEmail.value, password.value)
-  errors.value = response.errors
+  if (response.hasErrors) {
+    errors.value = response.errors // <-- just assign, don't map again!
+  } else {
+    errors.value = undefined
+  }
+
+  const toast = useNuxtApp().$toast
+
+  if (response.hasErrors) {
+    let firstErrorMsg = 'Login failed. Please check your credentials.'
+    const errorObj = errors.value
+    if (errorObj) {
+      const first = Object.values(errorObj)[0]
+      if (first?.message) firstErrorMsg = first.message
+    }
+    toast?.error?.(firstErrorMsg)
+  } else {
+    toast?.success?.('Login successful! Redirecting...')
+  }
+}
+
+function hasError(field: string) {
+  if (!errors.value) return false
+  if (typeof errors.value.has === 'function') {
+    return errors.value.has(field)
+  }
+  return !!errors.value[field]
 }
 </script>

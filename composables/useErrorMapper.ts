@@ -29,6 +29,14 @@ export default function useErrorMapper(error: any) {
     }
   }
 
+  // 🔽 Handle Authentication error from backend
+  if (error.Authentication && error.Authentication.message === "Invalid Credentials") {
+    return {
+      hasErrors: true,
+      errors: getMappedError("general", "Incorrect username or password."),
+    };
+  }
+
   // Fallback generic error
   return {
     hasErrors: true,
