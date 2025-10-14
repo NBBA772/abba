@@ -69,8 +69,10 @@
  *       500:
  *         description: Failed to register employee due to server error
  */
+import { Prisma } from '@prisma/client'
 import prisma from '~/server/database/client'
 import { hash } from 'bcryptjs'
+
 
 export default defineEventHandler(async (event) => {
   try {
@@ -91,8 +93,8 @@ export default defineEventHandler(async (event) => {
     // 2. Hash password
     const hashedPassword = await hash(password, 10)
 
-    // 3. Create Employee first
-    const employee = await prisma.employee.create({
+    // 3. Create User first
+    const user = await prisma.user.create({
       data: {
         firstName,
         lastName,
@@ -104,8 +106,8 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // 4. Create User and connect it directly to Employee
-    const user = await prisma.user.create({
+    // 4. Create Employee and connect to User
+    const employee = await prisma.employee.create({
       data: {
         firstName,
         lastName,
@@ -114,7 +116,7 @@ export default defineEventHandler(async (event) => {
         username,
         password: hashedPassword,
         companyId: company.id,
-        employee: { connect: { id: employee.id } }, // ✅ relation connect
+        userId: user.id, // connect to user
       },
     })
 
@@ -133,6 +135,15 @@ export default defineEventHandler(async (event) => {
     return { success: true, employee, user }
   } catch (err: any) {
     console.error('Employee registration failed:', err)
+    // Handle Prisma unique constraint error
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      const target = err.meta?.target?.[0] || 'email'
+      throw createError({
+        statusCode: 422,
+        data: { [target]: { message: `${target.charAt(0).toUpperCase() + target.slice(1)} is already taken` } }
+      })
+    }
+    // Fallback for other errors
     throw createError({ statusCode: 500, statusMessage: err.message || 'Failed to register employee' })
   }
 })
