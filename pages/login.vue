@@ -32,7 +32,7 @@
             <!-- Login Form -->
             <form v-on:submit.prevent class="space-y-4">
               <div>
-                <label for="username" class="sr-only">Username or Email</label>
+                <label for="username" class="sr-only">Email</label>
                 <input
                   v-model="usernameOrEmail"
                   id="username"
@@ -40,7 +40,7 @@
                   type="email"
                   autocomplete="email"
                   required
-                  placeholder="Username or Email"
+                  placeholder="Email"
                   class="dark:bg-slate-500 dark:text-white dark:placeholder-white w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   :class="hasError('username') ? 'border-red-500' : ''"
                 />

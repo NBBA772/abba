@@ -21,6 +21,6 @@
 import { deleteCookie } from "h3";
 
 export default eventHandler((event) => {
-  deleteCookie(event, 'auth_token')
-  return 'successfully logged out'
+  deleteCookie(event, 'auth_token', { path: '/' }) // Add path!
+  return { message: 'successfully logged out' }
 })

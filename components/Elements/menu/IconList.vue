@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useAuthCookie } from '~/composables/useAuth'
+import { useAuthCookie, userLogout } from '~/composables/useAuth'
 import { onClickOutside } from '@vueuse/core'
 
 // --- Dropdown / UI ---
@@ -47,6 +47,10 @@ async function getLoggedInUser() {
   } finally {
     loading.value = false
   }
+}
+
+function logout() {
+  userLogout()
 }
 
 
@@ -123,9 +127,8 @@ watch(
     </ClientOnly> -->
 
 <!-- Avatar / Login -->
-<NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile" class="text-gray-400">
+<NuxtLink :to="isLoggedIn ? '/profile' : '/login'" title="My Profile" class="text-gray-400 relative group">
   <template v-if="isLoggedIn">
-    <!-- Skeleton while fetching -->
     <IconListSkeletonLoader v-if="loading" />
 
     <!-- User avatar -->
@@ -136,13 +139,24 @@ watch(
       class="h-16 w-16 rounded-full object-cover ring-2 ring-blue-500 hover:ring-blue-400 transition-all"
     />
 
-    <!-- Fallback default avatar! -->
-<Icon
-  v-else
-  name="heroicons-solid:user"
-  class="h-16 w-16 rounded-full transition-all text-gray-400 dark:text-gray-200 bg-gray-100 flex items-center justify-center"
-/>
+    <!-- Fallback default avatar -->
+    <Icon
+      v-else
+      name="heroicons-solid:user"
+      class="h-16 w-16 rounded-full transition-all text-gray-400 dark:text-gray-200 bg-gray-100 flex items-center justify-center"
+    />
 
+    <!-- Dropdown menu on hover -->
+    <div
+      class="absolute right-0  w-40 bg-white dark:bg-gray-800 rounded shadow-lg py-2 z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity"
+    >
+      <button
+        @click.prevent="logout"
+        class="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        Logout
+      </button>
+    </div>
   </template>
 
   <template v-else>

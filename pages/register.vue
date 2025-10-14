@@ -128,6 +128,14 @@ try {
   agentId = agentData?.agent?.id;
   console.log("Assigned agentId:", agentId);
   if (!agentId) throw new Error("No agent available");
+  // Save agentId to the company
+  await $fetch("/api/company/update-agent", {
+    method: "POST",
+    body: {
+      businessCode: response.company.businessCode,
+      agentId
+    }
+  });
 } catch (err) {
   console.error("Failed to assign agent:", err);
   return;
@@ -160,7 +168,7 @@ try {
     }
 
     // 7️⃣ Redirect to dashboard
-    if (sessionId) router.push(`/dashboard/${sessionId}`);
+    if (sessionId) router.push(`/dashboard/`);
 
   } catch (err) {
     console.error("Registration failed:", err);

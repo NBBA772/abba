@@ -27,11 +27,12 @@ export async function useLoggedIn() {
 }
 
 export async function userLogout() {
-  await useFetch('/api/auth/logout');
-  useState('user').value = null;
+    useState('user').value = null;
   await useRouter().push('/');
-}
+  await $fetch('/api/auth/logout', { method: 'POST' });
 
+  window.location.reload();
+}
 // ------------------------
 // Register
 // ------------------------
@@ -69,7 +70,7 @@ export async function registerWithEmail(data: any) {
       await router.push(`/dashboard/`);
     }
 
-    return { hasErrors: false, loggedIn: true };
+    return { hasErrors: false, loggedIn: true, ...res };
   } catch (error: any) {
     console.error('Register error:', error);
     return { hasErrors: true, errors: error.data || {} };

@@ -244,7 +244,11 @@ export default eventHandler(async (event: H3Event) => {
     // 9. Create session
     const session = await makeSession(updatedUser, event)
     console.log('Session created:', session)
-    return session
+    return {
+      session,
+      company, // <-- add this line
+      user: updatedUser
+    }
   } catch (error: any) {
     console.error('Registration error:', error)
 
