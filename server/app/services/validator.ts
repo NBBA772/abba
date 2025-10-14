@@ -1,4 +1,4 @@
-import { getUserByEmail, getUserByUserName } from "~/server/database/repositories/userRespository"
+import { getUserByEmail, getUserByUserName, getUserByPhoneNumber } from "~/server/database/repositories/userRespository"
 import { RegistrationRequest } from "~/types/IRegistration"
 
 
@@ -49,6 +49,22 @@ async function validateRegistration(key: string, value: string): Promise<InputVa
             check.usernameTaken = true
             check.hasError = true
             check.errorMessage = `Username is invalid or already taken`
+        }
+    }
+
+    // Add phone number validation
+    if (key == 'phone') {
+        // Optional: Add a regex check for phone format
+        const phoneRegex = /^\d{10,15}$/;
+        if (!phoneRegex.test(value)) {
+            check.hasError = true
+            check.errorMessage = `Phone number is invalid`
+        } else {
+            const phoneUser = await getUserByPhoneNumber(value)
+            if (phoneUser) {
+                check.hasError = true
+                check.errorMessage = `Phone number is already taken`
+            }
         }
     }
 

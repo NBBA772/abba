@@ -84,10 +84,17 @@ async function postRegisterForm() {
     response = await registerWithEmail(payload);
     if (response.hasErrors) {
       const map = new Map<string, { message: string }>();
-      for (const [key, msg] of Object.entries(response.errors ?? {})) {
-        map.set(key, { message: String(msg) });
+      // Use .errors.data first, then .data, then .errors fallback
+      const errorData = response.errors?.data ?? response.data ?? response.errors ?? {};
+      for (const [key, msg] of Object.entries(errorData)) {
+        if (typeof msg === 'object' && msg !== null && 'message' in msg) {
+          map.set(key, { message: String(msg.message) });
+        } else {
+          map.set(key, { message: String(msg) });
+        }
       }
       errors.value = map;
+      console.error('Register validation errors:', errorData);
       return;
     }
 
@@ -111,6 +118,7 @@ async function postRegisterForm() {
         },
       });
     } catch (err) {
+      console.error('Registration failed (network or server error):', err);
       console.error("Failed to create admin as employee:", err);
     }
 
@@ -262,11 +270,20 @@ try {
                     </div>
 
                     <input v-model="adminUsername" required placeholder="Username *" class="input w-full h-10 px-3 py-2" />
+                    <span v-if="errors?.get('username')" class="text-red-600 text-sm">
+                      {{ errors.get('username').message }}
+                    </span>
                     <input v-model="adminEmail" required type="email" placeholder="Email Address *" class="input w-full h-10 px-3 py-2" />
+                    <span v-if="errors?.get('email')" class="text-red-600 text-sm">
+                      {{ errors.get('email').message }}
+                    </span>
 
                     <div class="grid grid-cols-2 gap-4">
                       <input v-model="adminPassword" type="password" required placeholder="Password *" class="input w-full h-10 px-3 py-2" />
                       <input v-model="adminPhoneNumber" required placeholder="Phone Number *" class="input w-full h-10 px-3 py-2" />
+                      <span v-if="errors?.get('phone')" class="text-red-600 text-sm">
+                      {{ errors.get('phone').message }}
+                    </span>
                     </div>
 
                     <button type="submit" class="w-full h-12 bg-[#046937] hover:bg-[#035a2e] text-white font-semibold text-lg rounded-md">
