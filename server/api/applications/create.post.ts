@@ -55,7 +55,8 @@ export default defineEventHandler(async (event) => {
       spouseWeight,
       spouseHeight,
       dependents = [],
-      ancillaryPlans = []
+      ancillaryPlans = [],
+      waiveOneTimeFee
     } = body
 
     // if (
@@ -118,6 +119,7 @@ export default defineEventHandler(async (event) => {
       application = await prisma.insuranceApplication.update({
         where: { id: application.id },
         data: {
+          waiveOneTimeFee,
           groupNumber, // always override
           groupName,
           firstName,
@@ -187,6 +189,7 @@ export default defineEventHandler(async (event) => {
       application = await prisma.insuranceApplication.create({
         data: {
           userId,
+          waiveOneTimeFee,
           groupNumber, // always override
           groupName,
           firstName,

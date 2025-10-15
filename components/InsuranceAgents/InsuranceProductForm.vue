@@ -517,6 +517,22 @@
         </div>
       </Transition>
 
+      <!-- Step 10. Waive One-Time Fee -->
+      <Transition name="fade-slide" mode="out-in">
+        <div v-if="currentStep === 9" class="space-y-4">
+          <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+            Waive One-Time Fee?
+          </label>
+          <select v-model="form.waiveOneTimeFee"
+                  class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                  required>
+            <option :value="null">Select an option</option>
+            <option :value="true">Yes</option>
+            <option :value="false">No</option>
+          </select>
+        </div>
+      </Transition>
+
 
 
 
@@ -548,7 +564,7 @@ import { useCookie } from "#imports";
 // 👇 Define props
 const props = defineProps<{ userId: number, application?: any }>()
 
-const steps = ['Group', 'Personal', 'Address', 'company', 'Spouse', 'dependents', 'visionAndDental', 'ancillary', 'Plan']
+const steps = ['Group', 'Personal', 'Address', 'company', 'Spouse', 'dependents', 'visionAndDental', 'ancillary', 'Plan', 'waiveOneTimeFee']
 const currentStep = ref(0)
 
 const form = reactive({
@@ -601,7 +617,8 @@ const form = reactive({
   }[],
     ancillaryPlans: [
     { planName: "", product: null,  price: null }
-  ]
+  ],
+  waiveOneTimeFee: null,
 })
 
 const message = ref('')

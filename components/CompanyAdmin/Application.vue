@@ -10,33 +10,54 @@
       No applications or payment authorizations found.
     </div>
 
-    <!-- 1️⃣ Show Payment Authorization FIRST if not signed -->
-    <PaymentAuthorizationForm
-      v-if="loggedInUser && !hasPaymentAuth"
-      :key="`pay-${loggedInUser.id}`"
-      :userId="loggedInUser.id"
-      @completed="onPaymentCompleted"
-    />
+    <div v-if="loggedInUser && !isEmployee">
+        <!-- 2️⃣ Show Application Form ONLY if payment is authorized -->
+        <InsuranceProductForm
+          v-if="loggedInUser && (!application?.id || application.id === null)"
+          :key="`app-${loggedInUser.id}`"
+          :userId="loggedInUser.id"
+        />
 
-    <!-- 2️⃣ Show Application Form ONLY if payment is authorized -->
-    <InsuranceProductForm
-      v-else-if="loggedInUser && hasPaymentAuth && (!application?.id || application.id === null)"
-      :key="`app-${loggedInUser.id}`"
-      :userId="loggedInUser.id"
-    />
+        <!-- 3️⃣ Show Employee Sign ONLY if both exist -->
+        <EmployeeSignApplication
+          v-else-if="loggedInUser && application?.id"
+          :key="`sign-${loggedInUser.id}`"
+          :application="application"
+        />
 
-    <!-- 3️⃣ Show Employee Sign ONLY if both exist -->
-    <EmployeeSignApplication
-      v-else-if="loggedInUser && application?.id && hasPaymentAuth"
-      :key="`sign-${loggedInUser.id}`"
-      :application="application"
-    />
+                <!-- 1️⃣ Show Payment Authorization FIRST if not signed -->
+        <PaymentAuthorizationForm
+          v-else-if="loggedInUser && !hasPaymentAuth"
+          :key="`pay-${loggedInUser.id}`"
+          :userId="loggedInUser.id"
+          @completed="onPaymentCompleted"
+        />
+    </div>
+    <div v-else-if="!loading && isEmployee">
+              <!-- 2️⃣ Show Application Form ONLY if payment is authorized -->
+        <InsuranceProductForm
+          v-if="loggedInUser &&  (!application?.id || application.id === null)"
+          :key="`app-${loggedInUser.id}`"
+          :userId="loggedInUser.id"
+        />
+
+        <!-- 3️⃣ Show Employee Sign ONLY if both exist -->
+        <EmployeeSignApplication
+          v-else-if="loggedInUser && application?.id"
+          :key="`sign-${loggedInUser.id}`"
+          :application="application"
+        />
+    </div>
+
   </div>
 </template>
 
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useEmployee } from '~/composables/useEmployee'
+
+const isEmployee = ref(false)
 
 interface Application {
   id: number | null
@@ -74,6 +95,9 @@ onMounted(async () => {
     loading.value = false
     return
   }
+
+  // Check if user is employee
+  isEmployee.value = await useEmployee(loggedInUser.value.id)
 
   // Fetch applications
   const apps = await $fetch("/api/applications/my")

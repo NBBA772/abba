@@ -105,6 +105,7 @@ model InsuranceApplication {
 
   groupNumber        String
   groupName          String
+  waiveOneTimeFee    Boolean?
 
   firstName          String?
   lastName           String?

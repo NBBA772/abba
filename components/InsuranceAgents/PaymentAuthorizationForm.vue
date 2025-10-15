@@ -170,6 +170,90 @@
             </div>
           </div>
 
+
+    <div v-if="employees.length" class="mb-8">
+  <h2 class="text-xl font-bold mb-4">Employees & Insurance Applications</h2>
+  <div
+    v-for="emp in employees"
+    :key="emp.id"
+    class="mb-6 border p-4 rounded"
+  >
+    <div class="font-semibold mb-2">
+      {{ emp.firstName }} {{ emp.lastName }}
+    </div>
+    <div v-if="emp.user && emp.user.insuranceApplications && emp.user.insuranceApplications.length">
+      <div
+        v-for="app in emp.user.insuranceApplications"
+        :key="app.id"
+        class="mb-2 pl-4 border-l"
+      >
+        <p><strong>Insurance Plan:</strong> {{ app.healthPlan }}</p>
+        <p><strong>Vision & Dental Plan:</strong> {{ app.visionAndDentalPlan ? 'Yes' : 'No' }}</p>
+        <div>
+          <strong>Ancillary Plans:</strong>
+          <ul>
+            <li v-for="plan in app.ancillaryPlans" :key="plan.id">
+              {{ plan.planName }} - {{ plan.product }} -{{ plan.price }}
+            </li>
+            <li v-if="!app.ancillaryPlans.length">None</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div v-else class="text-gray-500">No insurance applications.</div>
+  </div>
+
+  <!-- Total Section -->
+<div class="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded shadow">
+  <h3 class="font-bold text-lg mb-2">Totals</h3>
+  <p><strong>Total Employees:</strong> {{ employees.length }}</p>
+  <p>
+    <strong>Plan 1:</strong> {{ planCounts.plan1 }} &times; ${{ plan1Cost }} = <span class="font-bold">${{ planCounts.plan1 * plan1Cost }}</span>
+  </p>
+  <p>
+    <strong>Plan 2:</strong> {{ planCounts.plan2 }} &times; ${{ plan2Cost }} = <span class="font-bold">${{ planCounts.plan2 * plan2Cost }}</span>
+  </p>
+  <p>
+    <strong>Vision & Dental Plan:</strong> {{ planCounts.visionDental }} &times; ${{ visionDentalCost }} = <span class="font-bold">${{ planCounts.visionDental * visionDentalCost }}</span>
+  </p>
+
+  <p>
+  <strong>Ancillary Plans:</strong> 
+</p>
+<ul v-if="allAncillaryPlans.length" class="ml-4 list-disc text-sm">
+  <li v-for="plan in allAncillaryPlans" :key="plan.id">
+    {{ plan.planName }} - {{ plan.product }} - ${{ plan.price }}
+  </li>
+</ul>
+
+<p>
+  <strong>One-Time Plan Fee(s):</strong>
+  <span v-if="totalOneTimeFee > 0 && !insuranceApplications[0].waiveOneTimeFee">
+    ${{ totalOneTimeFee.toFixed(2) }}
+    <span class="text-gray-500 text-xs">(from selected plan{{ paymentAuthorizations.length > 1 ? 's' : '' }})</span>
+  </span>
+  <span v-else>
+    $0.00
+  </span>
+</p>
+
+<p class="mt-2">
+  <strong>Grand Total:</strong>
+  <span class="font-bold">
+    ${{ 
+      planCounts.plan1 * plan1Cost +
+      planCounts.plan2 * plan2Cost +
+      planCounts.visionDental * visionDentalCost +
+      ancillaryTotals.totalPrice +
+      totalOneTimeFee
+    }}
+    <span class="font-normal text-base"> + ${{ selectedMonthlyFee }} per month</span>
+  </span>
+</p>
+
+</div>
+</div>
+          
         <!-- Signature -->
         <div>
           <label class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
@@ -212,6 +296,7 @@ import SignaturePad from 'vue3-signature-pad';
 import axios from 'axios';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
+
 const emit = defineEmits(["completed"])
 
 interface PaymentAuthorization {
@@ -245,7 +330,22 @@ const planPrices = {
 
 
 
+const selectedMonthlyFee = computed(() => {
+  // Find the first selected plan in paymentAuthorizations
+  const auth = paymentAuthorizations.value.find(a => a.plan && planPrices[a.plan])
+  return auth ? planPrices[auth.plan].monthly : 24.95
+})
 
+
+const totalOneTimeFee = computed(() => {
+  return paymentAuthorizations.value.reduce((sum, auth) => {
+    if (auth.plan && planPrices[auth.plan] && insuranceApplications.value[0].waiveOneTimeFee !== true) {
+      console.log("insuranceApplications ", insuranceApplications.value[0].waiveOneTimeFee)
+      return sum + planPrices[auth.plan].oneTime
+    }
+    return sum
+  }, 0)
+})
 
 
 
@@ -279,16 +379,139 @@ watch(paymentAuthorizations, (auths) => {
 }, { deep: true });
 
 
+const visionDentalCost = 50
+
+const planCounts = computed(() => {
+  let plan1 = 0
+  let plan2 = 0
+  let visionDental = 0
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (app.healthPlan === 'plan1') plan1++
+        if (app.healthPlan === 'plan2') plan2++
+        if (app.visionAndDentalPlan) visionDental++
+      })
+    }
+  })
+  return { plan1, plan2, visionDental }
+})
+
+const plan1Cost = 300
+const plan2Cost = 756
+
+const ancillaryTotals = computed(() => {
+  let count = 0
+  let totalPrice = 0
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (app.ancillaryPlans && app.ancillaryPlans.length) {
+          app.ancillaryPlans.forEach(plan => {
+            count++
+            // Make sure plan.price is a number
+            const price = Number(plan.price)
+            if (!isNaN(price)) totalPrice += price
+          })
+        }
+      })
+    }
+  })
+  return { count, totalPrice }
+})
+
+
+
+const allAncillaryPlans = computed(() => {
+  const plans = []
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (app.ancillaryPlans && app.ancillaryPlans.length) {
+          app.ancillaryPlans.forEach(plan => {
+            plans.push(plan)
+          })
+        }
+      })
+    }
+  })
+  return plans
+})
+
+
+const employees = ref([])
 
 
 
 
 
 
-const user = await useUser()
+const user = ref(null)
+const insuranceApplications = ref([]);
+
+onMounted(async () => {
+  user.value = await useUser();
+  const companyId = user.value?.companyId;
+
+  try {
+    employees.value = await $fetch('/api/company/employees-applications', {
+      method: 'POST',
+      body: { companyId }
+    });
+
+    // If logged-in user is not already in employees, add them with insurance info
+    if (
+      user.value &&
+      !employees.value.some(emp => emp.user && emp.user.id === user.value.id)
+    ) {
+      // Fetch insurance applications for the logged-in user
+      const apps = await $fetch('/api/applications/my', {
+        method: 'POST',
+        body: { userId: user.value.id }
+      });
+      insuranceApplications.value = apps; // <-- store here!
+      employees.value.push({
+        id: user.value.id,
+        firstName: user.value.firstName,
+        lastName: user.value.lastName,
+        user: {
+          ...user.value,
+          insuranceApplications: apps
+        }
+      });
+    } else if (user.value) {
+      // If already in employees, still set insuranceApplications for template use
+      const emp = employees.value.find(emp => emp.user && emp.user.id === user.value.id);
+      insuranceApplications.value = emp?.user?.insuranceApplications || [];
+    }
+  } catch (err) {
+    console.error('Failed to fetch employees:', err);
+  }
+});
+
+
+
+const getEmployeeApplications = (employees) => {
+  return employees.map(emp => {
+    const user = emp.user
+    if (!user || !user.insuranceApplications) return null
+    return {
+      employee: emp,
+      applications: user.insuranceApplications.map(app => ({
+        ...app,
+        visionAndDental: app.visionAndDentalPlan ? 'Yes' : 'No',
+        ancillaryPlans: app.ancillaryPlans || []
+      }))
+    }
+  }).filter(Boolean)
+}
+
+
+
+
 let company = null
 
-async function generatePdf(auth: PaymentAuthorization, signatureDataUrl: string) {
+async function generatePdf(auth, signatureDataUrl, employees, planCounts, ancillaryTotals, allAncillaryPlans, totalOneTimeFee, selectedMonthlyFee) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595, 842]); // A4
   const { height } = page.getSize();
@@ -386,7 +609,13 @@ let xPos = startX;
 
 // --- One-time payment ---
 const labelOneTime = "a one-time payment of ";
-const valueOneTime = auth.amount && auth.currency ? `$${auth.amount.toFixed(2)}` : "";
+const valueOneTime =
+  insuranceApplications.value.length &&
+  insuranceApplications.value[0].waiveOneTimeFee
+    ? "$0.00 (waived)"
+    : auth.amount && auth.currency
+      ? `$${auth.amount.toFixed(2)}`
+      : "";
 
 const labelOneTimeEnd = " and charge my credit/debit card for";
 
@@ -574,21 +803,96 @@ so long as the transactions correspond to the terms indicated in this agreement.
 
 
 
+// --- End of page 1 content ---
+
+// Create page 2
+const page2 = pdfDoc.addPage([595, 842]); // A4
+const { height: height2 } = page2.getSize();
+let rowY2 = height2 - 60;
+const startX2 = 50;
+
+// --- Employees & Insurance Applications Section ---
+page2.drawText('Employees & Insurance Applications:', {
+  x: startX2,
+  y: rowY2,
+  size: 13,
+  font: fontBold,
+  color: rgb(0, 0.2, 0.6),
+});
+rowY2 -= 20;
+
+employees.forEach(emp => {
+  const name = `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || emp.user?.email || '';
+  page2.drawText(`- ${name}`, { x: startX2 + 10, y: rowY2, size: 11, font });
+  rowY2 -= 15;
+  if (emp.user && emp.user.insuranceApplications && emp.user.insuranceApplications.length) {
+    emp.user.insuranceApplications.forEach(app => {
+      page2.drawText(
+        `   Plan: ${app.healthPlan || 'N/A'}, Vision & Dental: ${app.visionAndDentalPlan ? 'Yes' : 'No'}`,
+        { x: startX2 + 30, y: rowY2, size: 10, font }
+      );
+      rowY2 -= 13;
+      if (app.ancillaryPlans && app.ancillaryPlans.length) {
+        app.ancillaryPlans.forEach(plan => {
+          page2.drawText(
+            `     Ancillary: ${plan.planName || ''} - ${plan.product || ''} - $${plan.price || ''}`,
+            { x: startX2 + 50, y: rowY2, size: 10, font }
+          );
+          rowY2 -= 12;
+        });
+      }
+    });
+  } else {
+    page2.drawText('   No insurance applications.', { x: startX2 + 30, y: rowY2, size: 10, font });
+    rowY2 -= 13;
+  }
+});
 
 
-    // Signature
-  page.drawText('Signature:', { x: 50, y: y - 430, size: 12, font: fontBold });
-  const pngImage = await pdfDoc.embedPng(signatureDataUrl);
-  page.drawImage(pngImage, { x: 130, y: y - 510, width: 200, height: 80 });
+rowY2 -= 30;
+page2.drawText('Totals:', {
+  x: startX2,
+  y: rowY2,
+  size: 13,
+  font: fontBold,
+  color: rgb(0, 0.2, 0.6),
+});
+rowY2 -= 18;
 
-  // Date Signed
-  page.drawText(`Date Signed: ${new Date().toLocaleString()}`, {
-    x: 50,
-    y: y - 530,
-    size: 10,
-    font,
-    color: rgb(0.3, 0.3, 0.3),
-  });
+page2.drawText(`Total Employees: ${employees.length}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`Plan 1: ${planCounts.plan1} × $${plan1Cost} = $${planCounts.plan1 * plan1Cost}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`Plan 2: ${planCounts.plan2} × $${plan2Cost} = $${planCounts.plan2 * plan2Cost}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`Vision & Dental Plan: ${planCounts.visionDental} × $${visionDentalCost} = $${planCounts.visionDental * visionDentalCost}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`Ancillary Plans: ${ancillaryTotals.count} | $${ancillaryTotals.totalPrice.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`One-Time Plan Fee(s): $${totalOneTimeFee.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`Grand Total: $${planCounts.plan1 * plan1Cost + planCounts.plan2 * plan2Cost + planCounts.visionDental * visionDentalCost + ancillaryTotals.totalPrice + totalOneTimeFee} + $${selectedMonthlyFee} per month`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+
+
+
+// --- Signature Section on Page 2 ---
+rowY2 -= 40;
+page2.drawText('Signature:', { x: startX2, y: rowY2, size: 12, font: fontBold });
+const pngImage = await pdfDoc.embedPng(signatureDataUrl);
+page2.drawImage(pngImage, { x: startX2 + 80, y: rowY2 - 80, width: 200, height: 80 });
+
+page2.drawText(`Date Signed: ${new Date().toLocaleString()}`, {
+  x: startX2,
+  y: rowY2 - 100,
+  size: 10,
+  font,
+  color: rgb(0.3, 0.3, 0.3),
+});
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -596,7 +900,7 @@ so long as the transactions correspond to the terms indicated in this agreement.
   
 
   // Footer
-  page.drawText(
+  page2.drawText(
     'By signing electronically, you confirm your consent to recurring charges and acknowledge this as a legal signature under the E-Sign Act.',
     {
       x: 50,
@@ -630,7 +934,16 @@ async function submitForm(auth: PaymentAuthorization) {
   message.value = '';
 
   const signatureDataUrl = pad.toDataURL();
-  const pdfBlob = await generatePdf(auth, signatureDataUrl);
+ const pdfBlob = await generatePdf(
+  auth,
+  signatureDataUrl,
+  employees.value,
+  planCounts.value,
+  ancillaryTotals.value,
+  allAncillaryPlans.value,
+  totalOneTimeFee.value,
+  selectedMonthlyFee.value
+);
 
   const formData = new FormData();
   formData.append('pdf', pdfBlob, 'payment_authorization.pdf');
