@@ -301,8 +301,40 @@
 
 
 
+
+<!-- Spouse Section -->
+<h2>Spouse</h2>
+<div class="mb-4 border p-4 rounded bg-gray-50 dark:bg-[#2d3a2a]">
+  <label class="block mb-2 text-gray-700 dark:text-gray-300">First Name</label>
+  <input v-model="app.spouseFirstName" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Middle Name</label>
+  <input v-model="app.spouseMiddleName" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Last Name</label>
+  <input v-model="app.spouseLastName" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Social Security Number</label>
+  <input v-model="app.spouseSocialSecurityNumber" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Date Of Birth</label>
+  <input :value="formatForDateInput(app.spouseDateOfBirth)" @input="app.spouseDateOfBirth = $event.target.value" type="date" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Age</label>
+  <input v-model="app.spouseAge" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Gender</label>
+  <input v-model="app.spouseGender" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Weight</label>
+  <input v-model="app.spouseWeight" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+
+  <label class="block mb-2 text-gray-700 dark:text-gray-300 mt-2">Height</label>
+  <input v-model="app.spouseHeight" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white" />
+</div>
+
 <!-- Dependents -->
- <h2>Dependents</h2>
+<h2>Dependents</h2>
 <div v-for="(dep, index) in app.dependents" :key="index"
      class="mb-4 border p-4 rounded bg-gray-50 dark:bg-[#2d3a2a]">
   <label class="block mb-2 text-gray-700 dark:text-gray-300">First Name</label>
@@ -1283,53 +1315,54 @@ if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
 
 
 
+
 // ---------------- Total Section ----------------
-// const pageWidth = 612; // standard page width
-// const rightMargin = 20;
-// const totalX = pageWidth - rightMargin - 200; // shift total section to the right (200px width)
+const pageWidth = 612; // standard page width
+const rightMargin = 20;
+const totalX = pageWidth - rightMargin - 200; // shift total section to the right (200px width)
 
-// healthY -= 300
-// page2.drawText("Total", { 
-//   x: totalX, 
-//   y: healthY, 
-//   size: 16, 
-//   font: helveticaBold 
-// })
+// Calculate total using explicit plan prices (NBBA Fee not included)
+let total = 0
+if (app.healthPlanPrice) total += Number(app.healthPlanPrice)
+if (app.visionAndDentalPrice) total += Number(app.visionAndDentalPrice)
+if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
+  app.ancillaryPlans.forEach(plan => total += Number(plan.price) || 0)
+}
+const nbbaFee = 24.95
 
-// // 🧮 Calculate total
-// let total = 0
-// if (app.healthPlan === "plan1") total += 100
-// else if (app.healthPlan === "plan2") total += 200
+// Print line items on the right
+healthY -= 175 // move up by 50px more (total 125px up from original)
+page2.drawText("Total", { 
+  x: totalX, 
+  y: healthY, 
+  size: 16, 
+  font: helveticaBold 
+})
 
-// if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
-//   app.ancillaryPlans.forEach(plan => total += Number(plan.price) || 0)
-// }
+healthY -= 20
+page2.drawText(`Health Plan Price: $${app.healthPlanPrice ?? "0"}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
+healthY -= 15
+page2.drawText(`Vision & Dental Plan Price: $${app.visionAndDentalPrice ?? "0"}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
 
-// const nbbaFee = 24.95
-// total += nbbaFee
+if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
+  healthY -= 15
+  page2.drawText("Ancillary Plans:", { x: totalX + 20, y: healthY, size: 12, font: helveticaBold })
+  app.ancillaryPlans.forEach(plan => {
+    healthY -= 15
+    page2.drawText(`${plan.planName || ""}: $${plan.price ?? "0"}`, { x: totalX + 40, y: healthY, size: 12, font: helvetica })
+  })
+}
 
-// // Print line items on the right
-// healthY -= 20
-// page2.drawText(`Health Plan: $${app.healthPlan === "plan1" ? "100" : "200"}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
 
-// if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
-//   app.ancillaryPlans.forEach(plan => {
-//     healthY -= 15
-//     page2.drawText(`${plan.planName || ""}: $${plan.price ?? "0"}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
-//   })
-// }
 
-// healthY -= 15
-// page2.drawText(`NBBA Fee: $${nbbaFee.toFixed(2)}`, { x: totalX + 20, y: healthY, size: 12, font: helvetica })
-
-// // Final total
-// healthY -= 25
-// page2.drawText(`Grand Total: $${total.toFixed(2)}`, { 
-//   x: totalX + 20, 
-//   y: healthY, 
-//   size: 14, 
-//   font: helveticaBold 
-// })
+// Final total
+healthY -= 25
+page2.drawText(`Grand Total: $${total.toFixed(2)}`, { 
+  x: totalX + 20, 
+  y: healthY, 
+  size: 14, 
+  font: helveticaBold 
+})
 
 
 
@@ -1440,10 +1473,11 @@ function downloadExistingPdf(url: string) {
 
 function formatForDateInput(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
+  // Parse as UTC to avoid timezone offset issues
   const d = new Date(dateStr)
-  const month = (d.getMonth() + 1).toString().padStart(2, '0')
-  const day = d.getDate().toString().padStart(2, '0')
-  const year = d.getFullYear()
+  const year = d.getUTCFullYear()
+  const month = (d.getUTCMonth() + 1).toString().padStart(2, '0')
+  const day = d.getUTCDate().toString().padStart(2, '0')
   return `${year}-${month}-${day}`
 }
 

@@ -146,7 +146,9 @@ model InsuranceApplication {
   height              String?
 
   healthPlan         String?
+  healthPlanPrice    Float?
   visionAndDentalPlan Boolean?
+  visionAndDentalPrice Float?
   lifeAncillaryPlan  String?
 
   ancillaryPlans     AncillaryPlan[]

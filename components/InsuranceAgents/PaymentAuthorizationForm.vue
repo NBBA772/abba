@@ -111,64 +111,39 @@
 
 
 
-          <!-- Credit Card Info -->
-          <div v-if="auth.paymentMethod === 'card'" class="space-y-4">
-            <!-- Card Type -->
+          <!-- Bank Draft Info (always shown above card info) -->
+          <div class="space-y-4 mb-6">
             <div>
-              <label class="block text-gray-700 dark:text-gray-300 mb-1">Card Type</label>
-              <select
-                v-model="auth.cardType"
-                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                required
-              >
-                <option value="" disabled>Select card type</option>
-                <option value="Visa">Visa</option>
-                <option value="MasterCard">MasterCard</option>
-                <option value="American Express">American Express</option>
-                <option value="Discover">Discover</option>
-              </select>
-            </div>
-
-            <!-- Card Number -->
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 mb-1">Card Number</label>
+              <label class="block text-gray-700 dark:text-gray-300 mb-1">Bank Name</label>
               <input
-                v-model="auth.cardNumber"
+                v-model="auth.bankName"
                 type="text"
-                maxlength="19"
-                placeholder="XXXX XXXX XXXX XXXX"
+                placeholder="Bank Name"
                 class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                required
               />
             </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <!-- Expiration -->
-              <div>
-                <label class="block text-gray-700 dark:text-gray-300 mb-1">Expiration Date</label>
-                <input
-                  v-model="auth.expiration"
-                  type="text"
-                  placeholder="MM/YY"
-                  class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                  required
-                />
-              </div>
-
-              <!-- CVV -->
-              <div>
-                <label class="block text-gray-700 dark:text-gray-300 mb-1">CVV</label>
-                <input
-                  v-model="auth.cvv"
-                  type="text"
-                  maxlength="4"
-                  placeholder="XXX"
-                  class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                  required
-                />
-              </div>
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 mb-1">Routing Number</label>
+              <input
+                v-model="auth.routingNumber"
+                type="text"
+                maxlength="9"
+                placeholder="Routing Number"
+                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 mb-1">Account Number</label>
+              <input
+                v-model="auth.accountNumber"
+                type="text"
+                maxlength="17"
+                placeholder="Account Number"
+                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+              />
             </div>
           </div>
+     
 
 
     <div v-if="employees.length" class="mb-8">
@@ -187,8 +162,8 @@
         :key="app.id"
         class="mb-2 pl-4 border-l"
       >
-        <p><strong>Insurance Plan:</strong> {{ app.healthPlan }}</p>
-        <p><strong>Vision & Dental Plan:</strong> {{ app.visionAndDentalPlan ? 'Yes' : 'No' }}</p>
+        <p><strong>Insurance Plan:</strong> {{ app.healthPlan }} - ${{ app.healthPlanPrice }}</p>
+        <p><strong>Vision & Dental Plan:</strong> {{ app.visionAndDentalPlan ? 'Yes' : 'No' }} - ${{ app.visionAndDentalPrice }}</p>
         <div>
           <strong>Ancillary Plans:</strong>
           <ul>
@@ -207,14 +182,14 @@
 <div class="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded shadow">
   <h3 class="font-bold text-lg mb-2">Totals</h3>
   <p><strong>Total Employees:</strong> {{ employees.length }}</p>
+
   <p>
-    <strong>Plan 1:</strong> {{ planCounts.plan1 }} &times; ${{ plan1Cost }} = <span class="font-bold">${{ planCounts.plan1 * plan1Cost }}</span>
+    <strong>Health Plan Total:</strong>
+    <span class="font-bold">${{ healthPlanTotalAmount.toFixed(2) }}</span>
   </p>
   <p>
-    <strong>Plan 2:</strong> {{ planCounts.plan2 }} &times; ${{ plan2Cost }} = <span class="font-bold">${{ planCounts.plan2 * plan2Cost }}</span>
-  </p>
-  <p>
-    <strong>Vision & Dental Plan:</strong> {{ planCounts.visionDental }} &times; ${{ visionDentalCost }} = <span class="font-bold">${{ planCounts.visionDental * visionDentalCost }}</span>
+    <strong>Vision & Dental Plan Total:</strong>
+    <span class="font-bold">${{ visionDentalTotalAmount.toFixed(2) }}</span>
   </p>
 
   <p>
@@ -240,10 +215,9 @@
 <p class="mt-2">
   <strong>Grand Total:</strong>
   <span class="font-bold">
-    ${{ 
-      planCounts.plan1 * plan1Cost +
-      planCounts.plan2 * plan2Cost +
-      planCounts.visionDental * visionDentalCost +
+    ${{
+      healthPlanTotalAmount +
+      visionDentalTotalAmount +
       ancillaryTotals.totalPrice +
       totalOneTimeFee
     }}
@@ -291,6 +265,67 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+// Totals for healthPlanPrice and visionAndDentalPrice from insurance applications
+const healthPlanTotalAmount = computed(() => {
+  let total = 0;
+  let count = 0;
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (typeof app.healthPlanPrice === 'number' && !isNaN(app.healthPlanPrice)) {
+          total += app.healthPlanPrice;
+          count++;
+        }
+      });
+    }
+  });
+  return total;
+});
+
+const healthPlanTotalCount = computed(() => {
+  let count = 0;
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (typeof app.healthPlanPrice === 'number' && !isNaN(app.healthPlanPrice)) {
+          count++;
+        }
+      });
+    }
+  });
+  return count;
+});
+
+const visionDentalTotalAmount = computed(() => {
+  let total = 0;
+  let count = 0;
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (typeof app.visionAndDentalPrice === 'number' && !isNaN(app.visionAndDentalPrice)) {
+          total += app.visionAndDentalPrice;
+          count++;
+        }
+      });
+    }
+  });
+  return total;
+});
+
+const visionDentalTotalCount = computed(() => {
+  let count = 0;
+  employees.value.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (typeof app.visionAndDentalPrice === 'number' && !isNaN(app.visionAndDentalPrice)) {
+          count++;
+        }
+      });
+    }
+  });
+  return count;
+});
 import { ref, reactive, onMounted } from 'vue';
 import SignaturePad from 'vue3-signature-pad';
 import axios from 'axios';
@@ -314,11 +349,14 @@ interface PaymentAuthorization {
   // Billing info
   cardNumber?: string;
   expiration?: string;      // MM/YY
-  cvv?: string,
+  cvv?: string;
   billingAddress?: string;
   city?: string;
   state?: string;
   zip?: string;
+  bankName?: string;
+  routingNumber?: string;
+  accountNumber?: string;
 }
 
 const planPrices = {
@@ -585,7 +623,7 @@ page.drawText(label2Row1, { x: label2XRow1, y: rowY, size: 12, font });
 rowY -= 30;
 
 const valueRow2 = companyName;
-const label2Row2 = " (Merchant) to charge my credit/debit card for";
+const label2Row2 = " (Merchant) to charge my bank account for";
 
 page.drawText("", { x: startX, y: rowY, size: 12, font: fontBold }); // empty label
 const valueXRow2 = startX; // no label offset
@@ -634,11 +672,6 @@ page.drawLine({
 xPos += underlineWidthAmount;
 
 // End label
-page.drawText(labelOneTimeEnd, { x: xPos, y: rowY, size: 12, font });
-
-// --- Recurring payment ---
-rowY -= 30; // move down for recurring payment
-xPos = startX;
 
 const labelRecurring1 = "$";
 const valueRecurring = '24.95';
@@ -724,62 +757,36 @@ xPos += font.widthOfTextAtSize(" Zip: ", 12);
 page.drawText(auth.zip || "", { x: xPos, y: rowY, size: 12, font });
 page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 70, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-// ------------------ Row 5: Payment Card Information ------------------
+// ------------------ Row 5: Bank Draft Information ------------------
 rowY -= 40;
 xPos = startX;
 
 // Heading
-page.drawText("Payment Card Information", { x: startX, y: rowY, size: 14, font: fontBold });
+page.drawText("Bank Draft Information", { x: startX, y: rowY, size: 14, font: fontBold });
 rowY -= 25; // spacing below heading
 xPos = startX;
 
-const cardTypes = ["Visa", "MasterCard", "American Express", "Discover"];
-const boxSize = 12; // size of checkbox
-const gap = 10; // space between box and label
-
-cardTypes.forEach((card) => {
-  // Draw checkbox rectangle
-  page.drawRectangle({
-    x: xPos,
-    y: rowY - boxSize + 2,
-    width: boxSize,
-    height: boxSize,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1,
-    color: auth.cardType === card ? rgb(0, 0, 0) : undefined, // fill if selected
-  });
-
-  // Draw label
-  const labelX = xPos + boxSize + 5;
-  page.drawText(card, { x: labelX, y: rowY, size: 12, font });
-
-  // Move xPos for the next checkbox
-  xPos = labelX + font.widthOfTextAtSize(card, 12) + gap;
-});
-// Card Number
-rowY -= 25;
-xPos = startX;
-page.drawText("Card Number: ", { x: xPos, y: rowY, size: 12, font });
-xPos += font.widthOfTextAtSize("Card Number: ", 12);
-page.drawText(auth.cardNumber || "", { x: xPos, y: rowY, size: 12, font });
+// Bank Name
+page.drawText("Bank Name: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize("Bank Name: ", 12);
+page.drawText(auth.bankName || "", { x: xPos, y: rowY, size: 12, font });
 page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 200, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-// Expiration
-xPos += 200 + 10; // gap after card number
-page.drawText(" Expiration: ", { x: xPos, y: rowY, size: 12, font });
-xPos += font.widthOfTextAtSize(" Expiration: ", 12);
-page.drawText(auth.expiration || "", { x: xPos, y: rowY, size: 12, font });
-page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 60, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
+// Routing Number
+xPos = startX;
+rowY -= 25;
+page.drawText("Routing Number: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize("Routing Number: ", 12);
+page.drawText(auth.routingNumber || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 200, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
-// CVV
-xPos += 60 + 10; // gap after expiration
-page.drawText(" CVV: ", { x: xPos, y: rowY, size: 12, font });
-xPos += font.widthOfTextAtSize(" CVV: ", 12);
-page.drawText(auth.cvv || "", { x: xPos, y: rowY, size: 12, font });
-page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 50, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
-
-
-
+// Account Number
+xPos = startX;
+rowY -= 25;
+page.drawText("Account Number: ", { x: xPos, y: rowY, size: 12, font });
+xPos += font.widthOfTextAtSize("Account Number: ", 12);
+page.drawText(auth.accountNumber || "", { x: xPos, y: rowY, size: 12, font });
+page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 200, y: rowY - 2 }, thickness: 1, color: rgb(0, 0, 0) });
 
 
 
@@ -788,8 +795,7 @@ page.drawLine({ start: { x: xPos, y: rowY - 2 }, end: { x: xPos + 50, y: rowY - 
   const legalText = `
 I authorize ${companyName} to make recurring charges to my account as indicated above for the amount stated. 
 I understand that I may cancel this authorization at any time by providing written notice prior to the next scheduled payment. 
-I confirm that I am an authorized user of this account and that I will not dispute these payments with my bank or credit card company 
-so long as the transactions correspond to the terms indicated in this agreement.`;
+I confirm that I am an authorized user of this account and that I will not dispute these payments with my bank so long as the transactions correspond to the terms indicated in this agreement.`;
 
   page.drawText(legalText.trim(), {
     x: 50,
@@ -819,32 +825,59 @@ page2.drawText('Employees & Insurance Applications:', {
   font: fontBold,
   color: rgb(0, 0.2, 0.6),
 });
-rowY2 -= 20;
+rowY2 -= 18;
 
+// Table header
+const col1 = startX2 + 10;
+const col2 = col1 + 160;
+const col3 = col2 + 120;
+const col4 = col3 + 120;
+
+page2.drawText('Name', { x: col1, y: rowY2, size: 11, font: fontBold });
+page2.drawText('Plan', { x: col2, y: rowY2, size: 11, font: fontBold });
+page2.drawText('Vision & Dental', { x: col3, y: rowY2, size: 11, font: fontBold });
+page2.drawText('Ancillary Plans', { x: col4, y: rowY2, size: 11, font: fontBold });
+rowY2 -= 13;
+
+// Table rows
 employees.forEach(emp => {
   const name = `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || emp.user?.email || '';
-  page2.drawText(`- ${name}`, { x: startX2 + 10, y: rowY2, size: 11, font });
-  rowY2 -= 15;
+  let maxLines = 1;
+  let rowStartY = rowY2;
   if (emp.user && emp.user.insuranceApplications && emp.user.insuranceApplications.length) {
+    // Calculate max lines needed for this employee
     emp.user.insuranceApplications.forEach(app => {
-      page2.drawText(
-        `   Plan: ${app.healthPlan || 'N/A'}, Vision & Dental: ${app.visionAndDentalPlan ? 'Yes' : 'No'}`,
-        { x: startX2 + 30, y: rowY2, size: 10, font }
-      );
-      rowY2 -= 13;
-      if (app.ancillaryPlans && app.ancillaryPlans.length) {
-        app.ancillaryPlans.forEach(plan => {
-          page2.drawText(
-            `     Ancillary: ${plan.planName || ''} - ${plan.product || ''} - $${plan.price || ''}`,
-            { x: startX2 + 50, y: rowY2, size: 10, font }
-          );
-          rowY2 -= 12;
-        });
+      const ancillaryCount = (app.ancillaryPlans && app.ancillaryPlans.length) ? app.ancillaryPlans.length : 1;
+      if (ancillaryCount > maxLines) maxLines = ancillaryCount;
+    });
+    // Draw all columns for each line, but only fill the first line with name/plan/vision
+    let lineIdx = 0;
+    emp.user.insuranceApplications.forEach(app => {
+      const ancillaryCount = (app.ancillaryPlans && app.ancillaryPlans.length) ? app.ancillaryPlans.length : 1;
+      for (let i = 0; i < ancillaryCount; i++) {
+        const y = rowStartY - (lineIdx * 12);
+        if (i === 0) {
+          page2.drawText(name, { x: col1, y, size: 10, font });
+          page2.drawText(app.healthPlan || 'N/A', { x: col2, y, size: 10, font });
+          page2.drawText(app.visionAndDentalPlan ? 'Yes' : 'No', { x: col3, y, size: 10, font });
+        }
+        // Ancillary plan for this line
+        if (app.ancillaryPlans && app.ancillaryPlans.length) {
+          const plan = app.ancillaryPlans[i];
+          if (plan) {
+            page2.drawText(`${plan.planName || ''} - ${plan.product || ''} - $${plan.price || ''}`, { x: col4, y, size: 10, font });
+          }
+        } else if (i === 0) {
+          page2.drawText('None', { x: col4, y, size: 10, font });
+        }
+        lineIdx++;
       }
     });
+    rowY2 = rowStartY - (maxLines * 12) - 8; // Add 8px extra space after each employee
   } else {
-    page2.drawText('   No insurance applications.', { x: startX2 + 30, y: rowY2, size: 10, font });
-    rowY2 -= 13;
+    page2.drawText(name, { x: col1, y: rowY2, size: 10, font });
+    page2.drawText('No insurance applications.', { x: col2, y: rowY2, size: 10, font });
+    rowY2 -= 12 + 8; // Add 8px extra space after each employee
   }
 });
 

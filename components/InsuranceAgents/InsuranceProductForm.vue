@@ -418,6 +418,16 @@
                   <option value="plan2">Plan 2</option>
                 </select>
               </div>
+              <div>
+                <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Health Plan Price ($)</label>
+                <input type="number"
+                       v-model="form.healthPlanPrice"
+                       :disabled="!isAgent"
+                       class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                       min="0"
+                       step="0.01"
+                       required />
+              </div>
           </div>
       </Transition>
 
@@ -438,7 +448,18 @@
               <option :value="true">Yes</option>
               <option :value="false">No</option>
             </select>
-
+          </div>
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Vision & Dental Plan Price ($)
+            </label>
+            <input type="number"
+                   v-model="form.visionAndDentalPrice"
+                   :disabled="!isAgent"
+                   class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                   min="0"
+                   step="0.01"
+                   required />
           </div>
         </div>
       </Transition>
@@ -520,16 +541,23 @@
       <!-- Step 10. Waive One-Time Fee -->
       <Transition name="fade-slide" mode="out-in">
         <div v-if="currentStep === 9" class="space-y-4">
-          <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
-            Waive One-Time Fee?
-          </label>
-          <select v-model="form.waiveOneTimeFee"
-                  class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                  required>
-            <option :value="null">Select an option</option>
-            <option :value="true">Yes</option>
-            <option :value="false">No</option>
-          </select>
+          <template v-if="isAgent">
+            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Waive One-Time Fee?
+            </label>
+            <select v-model="form.waiveOneTimeFee"
+                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                    :disabled="!isAgent">
+              <option :value="null">Select an option</option>
+              <option :value="true">Yes</option>
+              <option :value="false">No</option>
+            </select>
+          </template>
+          <template v-else>
+            <div class="text-center text-gray-700 dark:text-gray-300 mb-2">
+              Please review your information and press <b>Submit</b> to finish your application.
+            </div>
+          </template>
         </div>
       </Transition>
 
@@ -572,7 +600,9 @@ const form = reactive({
   groupNumber: '',
   groupName: '',
   healthPlan: '',
+  healthPlanPrice: null,
   visionAndDentalPlan: false,
+  visionAndDentalPrice: 0,
   firstName: '',
   lastName: '',
   phoneNumber: '',
@@ -619,6 +649,29 @@ const form = reactive({
     { planName: "", product: null,  price: null }
   ],
   waiveOneTimeFee: null,
+})
+
+// Set default prices for plan1 and plan2
+const healthPlanDefaults = {
+  plan1: 100,
+  plan2: 150,
+}
+
+watch(() => form.healthPlan, (newPlan) => {
+  if (newPlan && healthPlanDefaults[newPlan] !== undefined) {
+    form.healthPlanPrice = healthPlanDefaults[newPlan]
+  } else {
+    form.healthPlanPrice = null
+  }
+})
+
+// Set default price for vision and dental
+watch(() => form.visionAndDentalPlan, (newVal) => {
+  if (newVal === true) {
+    form.visionAndDentalPrice = 25
+  } else {
+    form.visionAndDentalPrice = 0
+  }
 })
 
 const message = ref('')
