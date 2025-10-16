@@ -92,7 +92,7 @@ model InsuranceAgent {
   isAvailable Boolean @default(false)
   isOnCall    Boolean @default(false)
   companies   Company[] 
-  lastAssignedAt DateTime?
+  lastAssignedAt DateTime @default(now())
   deletedAt  DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
