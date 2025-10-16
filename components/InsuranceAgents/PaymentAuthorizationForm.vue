@@ -882,6 +882,7 @@ employees.forEach(emp => {
 });
 
 
+
 rowY2 -= 30;
 page2.drawText('Totals:', {
   x: startX2,
@@ -893,12 +894,38 @@ page2.drawText('Totals:', {
 rowY2 -= 18;
 
 page2.drawText(`Total Employees: ${employees.length}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
-page2.drawText(`Plan 1: ${planCounts.plan1} × $${plan1Cost} = $${planCounts.plan1 * plan1Cost}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
-page2.drawText(`Plan 2: ${planCounts.plan2} × $${plan2Cost} = $${planCounts.plan2 * plan2Cost}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
-page2.drawText(`Vision & Dental Plan: ${planCounts.visionDental} × $${visionDentalCost} = $${planCounts.visionDental * visionDentalCost}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+  // Calculate totals from insurance applications
+  let plan1Total = 0, plan2Total = 0, visionDentalTotal = 0;
+  let plan1Unit = 0, plan2Unit = 0, visionDentalUnit = 0;
+  let plan1Count = 0, plan2Count = 0, visionDentalCount = 0;
+  employees.forEach(emp => {
+    if (emp.user && emp.user.insuranceApplications) {
+      emp.user.insuranceApplications.forEach(app => {
+        if (app.healthPlan === 'plan1' && typeof app.healthPlanPrice === 'number') {
+          plan1Total += app.healthPlanPrice;
+          plan1Unit = app.healthPlanPrice;
+          plan1Count++;
+        }
+        if (app.healthPlan === 'plan2' && typeof app.healthPlanPrice === 'number') {
+          plan2Total += app.healthPlanPrice;
+          plan2Unit = app.healthPlanPrice;
+          plan2Count++;
+        }
+        if (app.visionAndDentalPlan && typeof app.visionAndDentalPrice === 'number') {
+          visionDentalTotal += app.visionAndDentalPrice;
+          visionDentalUnit = app.visionAndDentalPrice;
+          visionDentalCount++;
+        }
+      });
+    }
+  });
+
+  page2.drawText(`Plan 1: ${plan1Count} × $${plan1Unit.toFixed(2)} = $${plan1Total.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+  page2.drawText(`Plan 2: ${plan2Count} × $${plan2Unit.toFixed(2)} = $${plan2Total.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+  page2.drawText(`Vision & Dental Plan: ${visionDentalCount} × $${visionDentalUnit.toFixed(2)} = $${visionDentalTotal.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
 page2.drawText(`Ancillary Plans: ${ancillaryTotals.count} | $${ancillaryTotals.totalPrice.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
 page2.drawText(`One-Time Plan Fee(s): $${totalOneTimeFee.toFixed(2)}`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
-page2.drawText(`Grand Total: $${planCounts.plan1 * plan1Cost + planCounts.plan2 * plan2Cost + planCounts.visionDental * visionDentalCost + ancillaryTotals.totalPrice + totalOneTimeFee} + $${selectedMonthlyFee} per month`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
+page2.drawText(`Grand Total: $${plan1Total + plan2Total + visionDentalTotal + ancillaryTotals.totalPrice + totalOneTimeFee} + $${selectedMonthlyFee} per month`, { x: startX2 + 10, y: rowY2, size: 11, font }); rowY2 -= 13;
 
 
 

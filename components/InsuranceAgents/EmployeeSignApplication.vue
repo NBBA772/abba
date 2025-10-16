@@ -958,7 +958,16 @@ rowLabels.forEach((label, rowIndex) => {
           page1.drawText(app.spouseSocialSecurityNumber || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
           break
         case 3:
-          page1.drawText(app.spouseDateOfBirth || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
+          // Format spouseDateOfBirth as MM/DD/YYYY
+          let formattedSpouseDOB = "";
+          if (app.spouseDateOfBirth) {
+            const d = new Date(app.spouseDateOfBirth);
+            const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(d.getUTCDate()).padStart(2, '0');
+            const yyyy = d.getUTCFullYear();
+            formattedSpouseDOB = `${mm}/${dd}/${yyyy}`;
+          }
+          page1.drawText(formattedSpouseDOB, { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
           break
         case 4:
           page1.drawText(app.spouseAge || "", { x: cellX + 2, y: y + 8, size: 8, font: helvetica })
@@ -1314,8 +1323,6 @@ if (app.ancillaryPlans && app.ancillaryPlans.length > 0) {
 
 
 
-
-
 // ---------------- Total Section ----------------
 const pageWidth = 612; // standard page width
 const rightMargin = 20;
@@ -1363,8 +1370,6 @@ page2.drawText(`Grand Total: $${total.toFixed(2)}`, {
   size: 14, 
   font: helveticaBold 
 })
-
-
 
 
 
