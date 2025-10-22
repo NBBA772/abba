@@ -599,7 +599,9 @@ model PaymentAuthorizationAuditTrail {
   ip                        String
   userAgent                 String
   documentHash              String?
+  timestamp    DateTime @default(now())
   createdAt                 DateTime              @default(now())
+  deletedAt    DateTime?
 }
 
 

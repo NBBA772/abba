@@ -406,61 +406,75 @@
 
       <!-- Step 7. Health Plan -->
       <Transition name="fade-slide" mode="out-in">
-          <div v-if="currentStep === 6" class="space-y-4">
-              <div>
-                <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Health Plan</label>
-                <select v-model="form.healthPlan"
+        <div v-if="currentStep === 6" class="space-y-4">
+          <template v-if="isAgent">
+                <div>
+                  <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Health Plan</label>
+                  <select v-model="form.healthPlan"
+                          :disabled="!isAgent"
+                          class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                          required>
+                    <option value="">Select Health Plan</option>
+                    <option value="plan1">Plan 1</option>
+                    <option value="plan2">Plan 2</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Health Plan Price ($)</label>
+                  <input type="number"
+                        v-model="form.healthPlanPrice"
                         :disabled="!isAgent"
                         class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                        required>
-                  <option value="">Select Health Plan</option>
-                  <option value="plan1">Plan 1</option>
-                  <option value="plan2">Plan 2</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Health Plan Price ($)</label>
-                <input type="number"
-                       v-model="form.healthPlanPrice"
-                       :disabled="!isAgent"
-                       class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                       min="0"
-                       step="0.01"
-                       required />
-              </div>
-          </div>
+                        min="0"
+                        step="0.01"
+                        required />
+                </div>
+          </template>
+          <template v-else>
+            <div class="text-center text-gray-700 dark:text-gray-300 mb-2">
+              Your agent will fill out the Health Plan section for you.
+            </div>
+          </template>
+        </div>
       </Transition>
 
 
 
       <!-- Step 8. Vision and Dental Plan -->
       <Transition name="fade-slide" mode="out-in">
-        <div v-if="currentStep === 7" class="space-y-4">
-          <div>
-            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
-              Do you need Vision and Dental coverage?
-            </label>
-            <select v-model="form.visionAndDentalPlan"
-                    :disabled="!isAgent"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required>
-              <option :value="null">Select an option</option>
-              <option :value="true">Yes</option>
-              <option :value="false">No</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
-              Vision & Dental Plan Price ($)
-            </label>
-            <input type="number"
-                   v-model="form.visionAndDentalPrice"
-                   :disabled="!isAgent"
-                   class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                   min="0"
-                   step="0.01"
-                   required />
-          </div>
+         <div v-if="currentStep === 7" class="space-y-4">
+          <template v-if="isAgent">
+              <div>
+                <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                  Do you need Vision and Dental coverage?
+                </label>
+                <select v-model="form.visionAndDentalPlan"
+                        :disabled="!isAgent"
+                        class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                        required>
+                  <option :value="null">Select an option</option>
+                  <option :value="true">Yes</option>
+                  <option :value="false">No</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                  Vision & Dental Plan Price ($)
+                </label>
+                <input type="number"
+                      v-model="form.visionAndDentalPrice"
+                      :disabled="!isAgent"
+                      class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                      min="0"
+                      step="0.01"
+                      required />
+              </div>
+          </template>
+          <template v-else>
+            <div class="text-center text-gray-700 dark:text-gray-300 mb-2">
+              Your agent will fill out the Vision and Dental Plan section for you.
+            </div>
+          </template>
         </div>
       </Transition>
 
@@ -470,73 +484,78 @@
       <!-- Step 9. Ancillary Insurance Info -->
       <Transition name="fade-slide" mode="out-in">
         <div v-if="currentStep === 8" class="space-y-4">
-          
-          <div v-for="(plan, index) in form.ancillaryPlans" :key="index" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            
-            <!-- Company-->
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
-                Company
-              </label>
-              <input 
-                type="text" 
-                v-model="plan.planName"
-                :disabled="!isAgent"
-                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                placeholder="Enter plan name" 
-              />
-            </div>
+          <template v-if="isAgent">
+              <div v-for="(plan, index) in form.ancillaryPlans" :key="index" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                
+                <!-- Company-->
+                <div>
+                  <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                    Company
+                  </label>
+                  <input 
+                    type="text" 
+                    v-model="plan.planName"
+                    :disabled="!isAgent"
+                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                    placeholder="Enter plan name" 
+                  />
+                </div>
 
-            <!-- Product -->
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
-                Product
-              </label>
-              <input 
-                type="text" 
-                v-model="plan.product"
-                :disabled="!isAgent"
-                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                placeholder="Enter product name" 
-              />
-            </div>
+                <!-- Product -->
+                <div>
+                  <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                    Product
+                  </label>
+                  <input 
+                    type="text" 
+                    v-model="plan.product"
+                    :disabled="!isAgent"
+                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                    placeholder="Enter product name" 
+                  />
+                </div>
 
-            <!-- Plan Price -->
-            <div>
-              <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
-                Plan Price
-              </label>
-              <input 
-                type="number" 
-                v-model="plan.price"
-                :disabled="!isAgent"
-                class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                placeholder="Enter monthly price ($)"
-                min="0"
-                step="0.01" 
-              />
-            </div>
+                <!-- Plan Price -->
+                <div>
+                  <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                    Plan Price
+                  </label>
+                  <input 
+                    type="number" 
+                    v-model="plan.price"
+                    :disabled="!isAgent"
+                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+                    placeholder="Enter monthly price ($)"
+                    min="0"
+                    step="0.01" 
+                  />
+                </div>
 
-            <!-- Remove Button -->
-            <div class="md:col-span-3 text-right">
-              <button type="button" 
-                      class="text-red-500 hover:text-red-700"
-                      @click="removeAncillaryPlan(index)">
-                Remove
+                <!-- Remove Button -->
+                <div class="md:col-span-3 text-right">
+                  <button type="button" 
+                          class="text-red-500 hover:text-red-700"
+                          @click="removeAncillaryPlan(index)">
+                    Remove
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Add New Plan Button -->
+              <button v-if="isAgent" type="button" 
+                      class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                      @click="addAncillaryPlan">
+                + Add Another Plan
               </button>
+          </template>
+          <template v-else>
+            <div class="text-center text-gray-700 dark:text-gray-300 mb-2">
+              Your agent will fill out the Ancillary Insurance Info section for you.
             </div>
-
-          </div>
-
-          <!-- Add New Plan Button -->
-          <button v-if="isAgent" type="button" 
-                  class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                  @click="addAncillaryPlan">
-            + Add Another Plan
-          </button>
-
+          </template>
         </div>
-      </Transition>
+      </Transition> 
 
       <!-- Step 10. Waive One-Time Fee -->
       <Transition name="fade-slide" mode="out-in">

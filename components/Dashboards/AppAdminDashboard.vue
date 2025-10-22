@@ -66,6 +66,10 @@
                   <AuditTrailList />
                 </div>
 
+                <div v-else-if="tab === 'paymentAuthAuditTrailList'">
+                  <PaymentAuthAuditTrailList />
+                </div>
+
 
                 <div v-else-if="tab === 'adminOverview'">
                   <adminOverview />
@@ -117,6 +121,7 @@ const tabs = [
    { key: 'CompanyAgentAssignments', label: 'Manage Clients' },
   { key: 'adminOverview', label: 'Manage Admins' },
   { key: 'auditTrailList', label: 'Enrollment Requests' },
+  { key: 'paymentAuthAuditTrailList', label: 'Payment Authorization Requests' },
   //   { key: 'leads', label: 'Leads' },
   // { key: 'seoRequest', label: 'SEO Request' },
   // { key: 'webDevelopmentRequest', label: 'Web Development Request' },
