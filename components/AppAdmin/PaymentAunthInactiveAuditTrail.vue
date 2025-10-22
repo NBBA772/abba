@@ -79,7 +79,7 @@ onMounted(async () => {
 const confirmRestore = async (id: number) => {
   if (!confirm("Restore this record?")) return;
   try {
-    await $fetch(`/api/admin/audit-trails/${id}/restore`, { method: "PATCH" });
+    await $fetch(`/api/admin/payment-auth-audit-trails/${id}/restore`, { method: "PATCH" });
     auditTrails.value = auditTrails.value.filter(a => a.id !== id);
   } catch (err) {
     console.error("Error restoring:", err);
