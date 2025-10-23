@@ -44,12 +44,21 @@
             <td class="p-2 dark:text-white">{{ employee.phone || "—" }}</td>
             <td class="p-2 dark:text-white">—</td>
             <td class="p-2 dark:text-white">
-              <button
-                @click="employeeOpenModal(employee)"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
-              >
-                Application
-              </button>
+              <span v-if="employee.hasSigned" class="text-green-600 dark:text-green-400 font-semibold">
+                Signed
+              </span>
+              <div v-else>
+                  <button
+                    v-if="!employee.hasSignedApplication"
+                    @click="employeeOpenModal(employee)"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                  >
+                    Application 
+                  </button>
+                  <div v-else class="text-green-600 dark:text-red-400 font-semibold">
+                    Application Signed
+                  </div>
+              </div>
             </td>
           </tr>
         </template>
@@ -92,29 +101,16 @@ const selectedLead = ref<any | null>(null);
 const showModal = ref(false);
 const userId = ref<number | null>(null);
 
-// Fetch leads from accepted endpoint and merge employees/admins
+// Fetch leads from accepted endpoint 
 const fetchLeads = async () => {
   try {
     const res = await $fetch("/api/leads/accepted", { method: "GET" });
-    leads.value = (res.assigned || []).map((lead: any) => {
-      const employees: any[] = [];
-      const employeeIds = new Set<number>();
-
-      // Add normal employees
-      (lead.employees || []).forEach((e: any) => {
-        employees.push({ ...e, companyId: lead.id, userId: e.userId ?? null });
-        employeeIds.add(e.id);
-      });
-
-      // Add admins that aren't already employees
-      (lead.administrators || []).forEach((a: any) => {
-        if (!employeeIds.has(a.id)) {
-          employees.push({ ...a, companyId: lead.id, userId: a.userId ?? null });
-        }
-      });
-
-      return { ...lead, employees };
-    });
+    console.log('API response:', res);
+    
+    // The employees array now includes the hasSigned property from the backend
+    leads.value = res.assigned || [];
+    
+    console.log('Processed leads:', leads.value);
   } catch (err: any) {
     error.value = err.message || "Failed to fetch leads";
   } finally {

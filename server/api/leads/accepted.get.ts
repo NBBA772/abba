@@ -18,29 +18,53 @@ export default defineEventHandler(async (event) => {
     const assignedRaw = await prisma.company.findMany({
       where: { agentId: agent.id },
       include: {
-        agent: { select: { id: true, firstName: true, lastName: true, email: true } },
+        agent: { 
+          select: { 
+            id: true, 
+            firstName: true, 
+            lastName: true, 
+            email: true 
+          } 
+        },
         administrators: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phoneNumber: true,
-            username: true,
-            companyId: true,
-          },
+          include: {
+            users: {
+              include: {
+                insuranceApplications: {
+                  select: {
+                    id: true,
+                    pdfUrl: true,
+                  }
+                },
+                paymentAuthorizations: {
+                  select: {
+                    id: true,
+                    pdfUrl: true,
+                  }
+                }
+              }
+            }
+          }
         },
         employees: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            username: true,
-            userId: true,
-            companyId: true,
-          },
+          include: {
+            user: {
+              include: {
+                insuranceApplications: {
+                  select: {
+                    id: true,
+                    pdfUrl: true,
+                  }
+                },
+                paymentAuthorizations: {
+                  select: {
+                    id: true,
+                    pdfUrl: true,
+                  }
+                }
+              }
+            }
+          }
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -56,26 +80,50 @@ const assigned = assignedRaw.map((company) => {
         email: company.administrators[0].email,
         phone: company.administrators[0].phoneNumber,
         username: company.administrators[0].username,
-        userId: null, // Add userId if available
+        userId: company.administrators[0].users?.[0]?.id || null,
         companyId: company.id,
       }
     : null
 
-  // Merge employees and admins
-  const employees = [
-    ...(company.employees || []),
-    ...(company.administrators?.map((admin) => ({
+  // Process employees with signing status
+  const processedEmployees = (company.employees || []).map((emp) => {
+    const hasSignedApplication = emp.user?.insuranceApplications?.some(app => app.pdfUrl) || false
+    const hasSignedPayment = emp.user?.paymentAuthorizations?.some(auth => auth.pdfUrl) || false
+    
+    return {
+      ...emp,
+      hasSigned: hasSignedApplication && hasSignedPayment,
+      hasSignedApplication,
+      hasSignedPayment,
+    }
+  })
+
+  // Process administrators with signing status
+  const processedAdmins = (company.administrators || []).map((admin) => {
+    const adminUser = admin.users?.[0]
+    const hasSignedApplication = adminUser?.insuranceApplications?.some(app => app.pdfUrl) || false
+    const hasSignedPayment = adminUser?.paymentAuthorizations?.some(auth => auth.pdfUrl) || false
+    
+    return {
       id: admin.id,
       firstName: admin.firstName,
       lastName: admin.lastName,
       email: admin.email,
       phone: admin.phoneNumber,
       username: admin.username,
-   
-      userId: 4, // Add userId if available
+      userId: adminUser?.id || null,
       companyId: company.id,
-    })) || []),
-  ]
+      hasSigned: hasSignedApplication && hasSignedPayment,
+      hasSignedApplication,
+      hasSignedPayment,
+    }
+  })
+
+  // Merge employees and admins, avoiding duplicates
+  const employeeIds = new Set(processedEmployees.map(e => e.id))
+  const nonDuplicateAdmins = processedAdmins.filter(admin => !employeeIds.has(admin.id))
+  
+  const employees = [...processedEmployees, ...nonDuplicateAdmins]
 
   return {
     ...company,
