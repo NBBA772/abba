@@ -393,18 +393,49 @@ const paymentAuthorizations = ref<PaymentAuthorization[]>([]);
 const message = ref('');
 const error = ref('');
 
-onMounted(() => {
-  paymentAuthorizations.value = [
-    {
-      id: 1,
-      userId: 5,
-      amount: 150,
-      currency: 'USD',
-      paymentMethod: 'card',
-      fullName: 'John Doe',
-      email: 'john@example.com',
-    },
-  ];
+onMounted(async () => {
+  // First, try to fetch existing payment authorizations
+  try {
+    const existingAuths = await $fetch('/api/payment-authorization/my');
+    
+    if (existingAuths && existingAuths.length > 0) {
+      // Use existing payment authorizations if found
+      paymentAuthorizations.value = existingAuths;
+    } else {
+      // Create new payment authorization if none exist
+      const user = await useUser();
+      paymentAuthorizations.value = [
+        {
+          id: 1,
+          userId: user?.id || 5,
+          amount: 150,
+          currency: 'USD',
+          paymentMethod: 'card',
+          fullName: user?.firstName && user?.lastName 
+            ? `${user.firstName} ${user.lastName}` 
+            : 'John Doe',
+          email: user?.email || 'john@example.com',
+        },
+      ];
+    }
+  } catch (err) {
+    console.error('Failed to fetch existing payment authorizations:', err);
+    // Fallback to creating new ones if fetch fails
+    const user = await useUser();
+    paymentAuthorizations.value = [
+      {
+        id: 1,
+        userId: user?.id || 5,
+        amount: 150,
+        currency: 'USD',
+        paymentMethod: 'card',
+        fullName: user?.firstName && user?.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : 'John Doe',
+        email: user?.email || 'john@example.com',
+      },
+    ];
+  }
 });
 
 watch(paymentAuthorizations, (auths) => {
