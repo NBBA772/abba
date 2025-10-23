@@ -27,13 +27,13 @@ const members = ref<Member[]>([]);
 const uploading = ref(false);
 const loading = ref(true);
 
-// Watch for company changes
-watch(() => props.selectedCompanyId, async (newCompanyId, oldCompanyId) => {
+// Watch for changes in both userId and selectedCompanyId
+watch([() => props.userId, () => props.selectedCompanyId], async ([newUserId, newCompanyId], [oldUserId, oldCompanyId]) => {
   members.value = []; // Clear old members/cards immediately
-  if (newCompanyId) {
+  if (newUserId && newCompanyId) {
     await fetchCards(newCompanyId);
   }
-});
+}, { immediate: false });
 
 // Fetch existing insurance cards for a company
 const fetchCards = async (companyId: number) => {
@@ -164,9 +164,11 @@ const saveCards = async () => {
   }
 };
 
-// Fetch cards on mount if a company is already selected
+// Fetch cards on mount if both userId and company are already selected
 onMounted(() => {
-  if (props.selectedCompanyId) fetchCards(props.selectedCompanyId);
+  if (props.userId && props.selectedCompanyId) {
+    fetchCards(props.selectedCompanyId);
+  }
 });
 </script>
 
