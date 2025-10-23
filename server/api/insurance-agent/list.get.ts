@@ -5,7 +5,14 @@ import prisma from "~/server/database/client";
 export default defineEventHandler(async () => {
   try {
     const agents = await prisma.insuranceAgent.findMany({
-      select: { id: true, firstName: true, lastName: true } // just IDs or whatever you need
+      where: { isActive: true }, // Only return active agents
+      select: { 
+        id: true, 
+        firstName: true, 
+        lastName: true,
+        isActive: true 
+      },
+      orderBy: { firstName: "asc" } // Sort alphabetically
     });
 
     // Return just the IDs if you want

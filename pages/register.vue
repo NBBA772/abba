@@ -25,8 +25,10 @@ const adminUsername = ref('');
 const adminEmail = ref('');
 const adminPassword = ref('');
 const adminPhoneNumber = ref('');
+const selectedAgentId = ref<number | null>(null);
 
 const errors: Ref<Map<string, { message: string }> | undefined> = ref(new Map());
+const agents = ref<Array<{ id: number; firstName: string; lastName: string }>>([]);
 let response: any;
 
 const plans = [
@@ -35,6 +37,19 @@ const plans = [
   { value: "6-10", label: "6-10 Employees - $599.99 Once & $24.99/month" },
   { value: "11+", label: "11+ Employees - $999.99 Once & $24.99/month" }
 ];
+
+// Fetch available agents
+async function fetchAgents() {
+  try {
+    const data = await $fetch("/api/insurance-agent/list") as {
+      agents: Array<{ id: number; firstName: string; lastName: string; isActive: boolean }>;
+      agentIds: number[];
+    };
+    agents.value = data.agents || [];
+  } catch (err) {
+    console.error("Failed to fetch agents:", err);
+  }
+}
 
 // Mark invite as accepted
 async function markInviteAccepted(inviteId: number) {
@@ -122,24 +137,44 @@ async function postRegisterForm() {
       console.error("Failed to create admin as employee:", err);
     }
 
-    // 4️⃣ Assign agent via round-robin
-try {
-  const agentData = await $fetch("/api/insurance-agent/round-robin");
-  agentId = agentData?.agent?.id;
-  console.log("Assigned agentId:", agentId);
-  if (!agentId) throw new Error("No agent available");
-  // Save agentId to the company
-  await $fetch("/api/company/update-agent", {
-    method: "POST",
-    body: {
-      businessCode: response.company.businessCode,
-      agentId
+    // 4️⃣ Assign agent (either selected or round-robin)
+    try {
+      if (selectedAgentId.value) {
+        // Use the selected agent
+        agentId = selectedAgentId.value;
+        console.log("Using selected agentId:", agentId);
+        
+        // Update the selected agent's lastAssignedAt timestamp
+        await $fetch(`/api/insurance-agent/${agentId}/update-assignment`, {
+          method: "POST"
+        }).catch(err => {
+          console.warn("Failed to update agent assignment timestamp:", err);
+          // Continue anyway since the main assignment still works
+        });
+      } else {
+        // Use round-robin assignment
+        const agentData = await $fetch("/api/insurance-agent/round-robin") as {
+          status: string;
+          agent?: { id: number };
+        };
+        agentId = agentData?.agent?.id;
+        console.log("Round-robin assigned agentId:", agentId);
+      }
+      
+      if (!agentId) throw new Error("No agent available");
+      
+      // Save agentId to the company
+      await $fetch("/api/company/update-agent", {
+        method: "POST",
+        body: {
+          businessCode: response.company.businessCode,
+          agentId
+        }
+      });
+    } catch (err) {
+      console.error("Failed to assign agent:", err);
+      return;
     }
-  });
-} catch (err) {
-  console.error("Failed to assign agent:", err);
-  return;
-}
 
 // 5️⃣ Save lead invite for admin (no email, just DB)
 try {
@@ -174,6 +209,11 @@ try {
     console.error("Registration failed:", err);
   }
 }
+
+// Fetch agents when component mounts
+onMounted(() => {
+  fetchAgents();
+});
 </script>
 
 
@@ -279,19 +319,35 @@ try {
 
                     <input v-model="adminUsername" required placeholder="Username *" class="input w-full h-10 px-3 py-2" />
                     <span v-if="errors?.get('username')" class="text-red-600 text-sm">
-                      {{ errors.get('username').message }}
+                      {{ errors.get('username')?.message }}
                     </span>
                     <input v-model="adminEmail" required type="email" placeholder="Email Address *" class="input w-full h-10 px-3 py-2" />
                     <span v-if="errors?.get('email')" class="text-red-600 text-sm">
-                      {{ errors.get('email').message }}
+                      {{ errors.get('email')?.message }}
                     </span>
 
                     <div class="grid grid-cols-2 gap-4">
                       <input v-model="adminPassword" type="password" required placeholder="Password *" class="input w-full h-10 px-3 py-2" />
                       <input v-model="adminPhoneNumber" required placeholder="Phone Number *" class="input w-full h-10 px-3 py-2" />
-                      <span v-if="errors?.get('phone')" class="text-red-600 text-sm">
-                      {{ errors.get('phone').message }}
+                    </div>
+                    <span v-if="errors?.get('phone')" class="text-red-600 text-sm">
+                      {{ errors.get('phone')?.message }}
                     </span>
+
+                    <!-- Agent Selection -->
+                    <div class="space-y-2">
+                      <label class="block text-sm font-medium text-gray-700">Insurance Agent (Optional)</label>
+                      <select v-model="selectedAgentId" class="w-full h-10 px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-green-700">
+                        <option :value="null">Auto-assign (Round Robin)</option>
+                        <option 
+                          v-for="agent in agents" 
+                          :key="agent.id" 
+                          :value="agent.id"
+                        >
+                          {{ agent.firstName }} {{ agent.lastName }}
+                        </option>
+                      </select>
+                      <p class="text-xs text-gray-500">Leave as "Auto-assign" to automatically assign the next available agent</p>
                     </div>
 
                     <button type="submit" class="w-full h-12 bg-[#046937] hover:bg-[#035a2e] text-white font-semibold text-lg rounded-md">
