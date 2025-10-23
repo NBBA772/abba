@@ -588,7 +588,7 @@ async function generatePdf(auth, signatureDataUrl, employees, planCounts, ancill
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  const companyName = 'Amerus Financial Inc.'; // replace with env var if needed
+  const companyName = 'NBBA Local'; // replace with env var if needed
     // --- Embed logo ---
     const logoUrl = '/img/logo.png'
     const logoBytes = await fetch(logoUrl).then(res => res.arrayBuffer())
