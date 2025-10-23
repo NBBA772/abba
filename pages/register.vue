@@ -38,6 +38,20 @@ const plans = [
   { value: "11+", label: "11+ Employees - $999.99 Once & $24.99/month" }
 ];
 
+// Normalize phone number to 10-digit format
+function normalizePhoneNumber(phone: string): string {
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // If it starts with 1 and has 11 digits, remove the 1
+  if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
+    return digitsOnly.substring(1);
+  }
+  
+  // Return the digits (should be 10 digits for valid US phone numbers)
+  return digitsOnly;
+}
+
 // Fetch available agents
 async function fetchAgents() {
   try {
@@ -78,7 +92,7 @@ async function postRegisterForm() {
       username: adminUsername.value,
       firstName: adminFirstName.value,
       lastName: adminLastName.value,
-      phone: adminPhoneNumber.value,
+      phone: normalizePhoneNumber(adminPhoneNumber.value),
       email: adminEmail.value,
       password: adminPassword.value,
       companyName: companyName.value,
@@ -89,7 +103,7 @@ async function postRegisterForm() {
       city: city.value,
       state: state.value,
       zipCode: zipCode.value,
-      companyPhone: companyPhone.value,
+      companyPhone: normalizePhoneNumber(companyPhone.value),
       companyEmail: companyEmail.value,
       website: website.value,
       employeeSize: employeeSize.value
@@ -127,7 +141,7 @@ async function postRegisterForm() {
           firstName: adminFirstName.value,
           lastName: adminLastName.value,
           email: adminEmail.value,
-          phone: adminPhoneNumber.value,
+          phone: normalizePhoneNumber(adminPhoneNumber.value),
           username: adminUsername.value,
           password: adminPassword.value
         },
