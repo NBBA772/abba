@@ -121,13 +121,9 @@ const assigned = assignedRaw.map((company) => {
 
   // Merge employees and admins, avoiding duplicates
   const employeeIds = new Set(processedEmployees.map(e => e.id))
-  const adminIds = new Set(processedAdmins.map(a => a.id))
-  
-  // Remove any employees that are also admins
-  const nonAdminEmployees = processedEmployees.filter(emp => !adminIds.has(emp.id))
   const nonDuplicateAdmins = processedAdmins.filter(admin => !employeeIds.has(admin.id))
   
-  const employees = [...nonAdminEmployees, ...nonDuplicateAdmins]
+  const employees = [...processedEmployees, ...nonDuplicateAdmins]
 
   return {
     ...company,
