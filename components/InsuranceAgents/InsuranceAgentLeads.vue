@@ -79,7 +79,7 @@
               </div>
             </td>
             <td class="p-2 dark:text-white">{{ admin.email }}</td>
-            <td class="p-2 dark:text-white">{{ admin.phone || "—" }}</td>
+            <td class="p-2 dark:text-white">{{ admin.phoneNumber || "—" }}</td>
             <td class="p-2 dark:text-white">—</td>
             <td class="p-2 dark:text-white">
               <span v-if="admin.hasSigned" class="text-green-600 dark:text-green-400 font-semibold">
