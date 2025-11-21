@@ -127,6 +127,7 @@ const assigned = assignedRaw.map((company) => {
 
   return {
     ...company,
+    companyAdmin,
     employees,
   }
 })
