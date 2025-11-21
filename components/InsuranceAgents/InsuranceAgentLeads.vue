@@ -63,42 +63,7 @@
           </tr>
 
 
-          <!-- administrators -->
-          <tr
-            v-for="admin in lead.administrators"
-            :key="`lead-${lead.id}-emp-${admin.id}`"
-            class="hover:bg-gray-50 dark:hover:bg-[#2d3a2a]"
-          >
-            <td class="relative w-8">
-              <div class="absolute left-1/2 top-0 bottom-0 border-l-2 border-gray-400 dark:border-gray-400"></div>
-            </td>
-            <td class="p-2 dark:text-white">
-              <div class="flex items-center">
-                <div class="w-4 border-t-2 border-gray-400 dark:border-gray-400 mr-2"></div>
-                <span>{{ admin.firstName }} {{ admin.lastName }}</span>
-              </div>
-            </td>
-            <td class="p-2 dark:text-white">{{ admin.email }}</td>
-            <td class="p-2 dark:text-white">{{ admin.phoneNumber || "—" }}</td>
-            <td class="p-2 dark:text-white">—</td>
-            <td class="p-2 dark:text-white">
-              <span v-if="admin.hasSigned" class="text-green-600 dark:text-green-400 font-semibold">
-                Signed
-              </span>
-              <div v-else>
-                  <button
-                    v-if="!admin.hasSignedApplication"
-                    @click="employeeOpenModal(admin)"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
-                  >
-                    Application 
-                  </button>
-                  <div v-else class="text-green-600 dark:text-red-400 font-semibold">
-                    Application Signed
-                  </div>
-              </div>
-            </td>
-          </tr>
+
         </template>
       </tbody>
     </table>
