@@ -10,7 +10,8 @@
       No applications or payment authorizations found.
     </div>
 
-    <div v-if="loggedInUser && !isEmployee">
+    <div v-if="loggedInUser">
+      <!-- <div v-if="loggedInUser && !isEmployee"> BUG??-->
         <!-- 2️⃣ Show Application Form ONLY if payment is authorized -->
         <InsuranceProductForm
           v-if="loggedInUser && (!application?.id || application.id === null)"
