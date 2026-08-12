@@ -374,17 +374,55 @@
 
 
 
-          <!-- Health Plan -->
-          <div>
-            <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Health Plan</label>
-            <select v-model="app.healthPlan"
-                    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
-                    required disabled>
-              <option value="">Select Health Plan</option>
-              <option value="plan1">Plan 1</option>
-              <option value="plan2">Plan 2</option>
-            </select>
-          </div>
+     <!-- Health Plan -->
+<div v-if="form.healthPlan !== ''">
+  <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+    Health Plan
+  </label>
+
+  <select
+    v-model="app.healthPlan"
+    class="w-full px-3 py-2 border rounded-md dark:bg-[#142610] dark:text-white"
+    required
+    disabled
+  >
+    <option value="">Select Health Plan</option>
+    <option value="plan1">Plan 1</option>
+    <option value="plan2">Plan 2</option>
+  </select>
+
+
+</div>
+
+<div v-else>
+  <strong>Call agent to select health plan</strong>
+  <!-- Agent Info -->
+   {{ company.companyName }}
+  <div
+    v-if="company?.agent"
+    class="mt-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#2d3a2a]"
+  >
+    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">
+      Assigned Insurance Agent
+    </h3>
+
+    <p class="text-gray-700 dark:text-gray-300">
+      <strong>Name:</strong>
+      {{ company.agent.firstName }} {{ company.agent.lastName }}
+    </p>
+
+    <p class="text-gray-700 dark:text-gray-300">
+      <strong>Phone:</strong>
+      {{ company.agent.phone || 'N/A' }}
+    </p>
+
+    <p class="text-gray-700 dark:text-gray-300">
+      <strong>Email:</strong>
+      {{ company.agent.email }}
+    </p>
+  </div>
+
+</div>
 
 
 
@@ -435,28 +473,33 @@
             </div>
           </div>
 
-        <!-- Signature Pad -->
-        <div class="signature-container mt-4">
-        <SignaturePad  class="w-full h-40 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#3a3a3a]" :ref="el => { if (el) signaturePads[app.id!] = el }" />
-          <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 italic">
-            *Sign Here
-          </p>
-        </div>
 
-        <!-- E-sign consent -->
-        <div class="flex items-center mt-2">
-          <input type="checkbox" v-model="consent[app.id!]" id="consent-{{app.id}}" class="mr-2">
-          <label for="consent-{{app.id}}" class="text-gray-700 dark:text-gray-300">
-            I consent to e-sign this application
-          </label>
-        </div>
 
-        <!-- Submit -->
-        <button type="submit"
-                :disabled="!consent[app.id!]"
-                class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-[#046937] dark:bg-[#046937] dark:hover:bg-[#058a45]">
-          {{ isExisting ? 'Sign & Generate PDF' : 'Submit & Generate PDF' }}
-        </button>
+
+          <template v-if="form.waiveOneTimeFee !== null">
+            <!-- Signature Pad -->
+            <div class="signature-container mt-4">
+            <SignaturePad   class="w-full h-40 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#3a3a3a]" :ref="el => { if (el) signaturePads[app.id!] = el }" />
+              <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 italic">
+                *Sign Here
+              </p>
+            </div>
+
+            <!-- E-sign consent -->
+            <div class="flex items-center mt-2">
+              <input type="checkbox" v-model="consent[app.id!]" id="consent-{{app.id}}" class="mr-2">
+              <label for="consent-{{app.id}}" class="text-gray-700 dark:text-gray-300">
+                I consent to e-sign this application
+              </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+                    :disabled="!consent[app.id!]"
+                    class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-[#046937] dark:bg-[#046937] dark:hover:bg-[#058a45]">
+              {{ isExisting ? 'Sign & Generate PDF' : 'Submit & Generate PDF' }}
+            </button>
+        </template>
       </form>
     </div>
 
@@ -479,6 +522,27 @@ import { reactive, ref, watch, onMounted } from 'vue'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import SignaturePad from 'vue3-signature-pad'
 import { useCookie } from '#imports'
+
+const form = reactive({
+  groupNumber: '',
+  groupName: '',
+  healthPlan: '',
+  waiveOneTimeFee: null,
+})
+
+const company = ref<companyResponse | null>(null)
+
+interface companyResponse {
+  id: number,
+  companyName: string,
+  agent: {
+    firstName: string,
+    lastName: string,
+    phone: string,
+    email: string
+  }
+
+}
 
 interface InsuranceApplication {
   id?: number,
@@ -554,7 +618,7 @@ applications.value.forEach(app => {
 })
 
 const user = await useUser()
-let company = null
+
 
 
 
@@ -673,9 +737,9 @@ async function submitForm(app: InsuranceApplication) {
       color: rgb(0, 0, 0) 
     })
 
-    if (user?.id) {
-      company = await useCompany(user.id)
-    }
+if (user?.id) {
+  company.value = await useCompany(String(user.id))
+}
 
     // Row 1
     let employerRowY = employerY - 20

@@ -2,12 +2,17 @@
   <PatternSection>
     <div>
       <CompanyProfileHeaderSkeletonLoader v-if="loading" />
-      <CompanyProfileHeader 
+      <CompanyProfileHeader
         v-else
         :user="loggedInUser"
         role="App Admin"
         @file-change="handleFileChange"
       />
+
+      <div class="mt-6 p-6 bg-white dark:bg-[#3a4934] border border-gray-200 dark:border-gray-700 rounded-lg shadow max-w-xl">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Change Password</h3>
+        <ChangePasswordForm />
+      </div>
 
     </div>
   </PatternSection>

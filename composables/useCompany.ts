@@ -1,14 +1,31 @@
-// composables/useCompany.ts
-import type { CompanyInfo } from '~/composables/useAuth'
+```ts
+// composables/useAuth.ts
 
-export async function useCompany(userId: string): Promise<CompanyInfo | null> {
-  try {
-    const { data } = await useFetch<CompanyInfo>('/api/company/getByUser', {
-      params: { userId },
-    })
-    return data.value || null
-  } catch (error) {
-    console.error("Error fetching company:", error)
-    return null
-  }
+export interface CompanyInfo {
+  id: number
+  companyName: string
+  ein?: string
+  salesmanCode?: string
+  industry: string
+
+  streetAddress: string
+  city: string
+  state: string
+  zipCode: string
+
+  phoneNumber: string
+  companyEmail: string
+  website?: string
+  employeeSize: string
+
+  businessCode?: string
+
+  agent?: {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    phone?: string
+  } | null
 }
+```

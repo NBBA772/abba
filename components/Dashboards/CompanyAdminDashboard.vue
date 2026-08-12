@@ -184,6 +184,11 @@
                   <div v-else-if="tab === 'payment'">
                     <PaymentAuthorizationForm />
                   </div>
+
+                  <!-- Change Password Tab -->
+                  <div v-else-if="tab === 'changePassword'" class="p-4 bg-white dark:bg-[#3a4934] shadow rounded-lg">
+                    <ChangePasswordForm />
+                  </div>
                 </div>
               </Transition>
 
@@ -219,6 +224,7 @@ const tabs = [
   // { key: 'payroll', label: 'Payroll' },
   { key: 'application', label: 'Applications' },
   { key: 'payment', label: 'Payment' },
+  { key: 'changePassword', label: 'Change Password' },
 ]
 
 async function getLoggedInUser() {

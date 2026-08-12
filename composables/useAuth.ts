@@ -100,4 +100,23 @@ export async function loginWithEmail(usernameOrEmail: string, password: string):
   }
 }
 
+// ------------------------
+// Change Password
+// ------------------------
+export async function changePassword(currentPassword: string, newPassword: string): Promise<FormValidation> {
+  try {
+    const authToken = useAuthCookie().value;
+    await $fetch('/api/user/change-password', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authToken}` },
+      body: { currentPassword, newPassword },
+    });
+
+    return { hasErrors: false };
+  } catch (error: any) {
+    const errorData = error?.data?.data ?? error?.data ?? { message: error.message ?? 'Unknown error' };
+    return useErrorMapper(errorData);
+  }
+}
+
 

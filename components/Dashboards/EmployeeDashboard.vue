@@ -38,6 +38,10 @@
                   <PlanDetailsDisplay :userId="selectedEmployee || loggedInUser?.id" v-if="tab==='planDetails'" /> -->
 
                   <Application v-if="tab==='application'"/>
+
+                  <div v-if="tab==='changePassword'" class="p-4 bg-white dark:bg-[#3a4934] shadow rounded-lg">
+                    <ChangePasswordForm />
+                  </div>
                 </div>
               </Transition>
             </section>
@@ -68,7 +72,8 @@ const tabs = [
   // { key: 'providerNetwork', label: 'Provider Network' },
   // { key: 'claimsSupport', label: 'Claims Support' },
   // { key: 'planDetails', label: 'Plan Details' },
-  { key: 'application', label: 'Application' }
+  { key: 'application', label: 'Application' },
+  { key: 'changePassword', label: 'Change Password' },
 ]
 
 const tab = ref('insuranceCard')

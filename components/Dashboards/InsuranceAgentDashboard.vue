@@ -9,7 +9,7 @@
           <Transition name="slide-aside">
             <section class="md:col-span-2 transition-all duration-500 ease-in-out">
               <!-- Tabs -->
-              <!-- <div class="relative border-b border-gray-300 dark:border-gray-600 mb-4">
+              <div class="relative border-b border-gray-300 dark:border-gray-600 mb-4">
                 <ul class="flex space-x-4 bg-white dark:bg-[#3a4934] p-4 shadow-md relative">
                   <li
                     v-for="(t, index) in tabs"
@@ -26,7 +26,7 @@
                     :style="{ width: underlineWidth + 'px', transform: `translateX(${underlineX}px)` }"
                   ></div>
                 </ul>
-              </div> -->
+              </div>
 
               <!-- Tab Content -->
               <Transition name="fade-slide" mode="out-in">
@@ -38,6 +38,10 @@
                   <ProviderNetworkDisplay :userId="selectedEmployee || loggedInUser?.id" v-if="tab==='providerNetwork'" />
                   <ClaimsSupportDisplay :userId="selectedEmployee || loggedInUser?.id" v-if="tab==='claimsSupport'" />
                   <PlanDetailsDisplay :userId="selectedEmployee || loggedInUser?.id" v-if="tab==='planDetails'" /> -->
+
+                  <div v-if="tab==='changePassword'" class="p-4 bg-white dark:bg-[#3a4934] shadow rounded-lg">
+                    <ChangePasswordForm />
+                  </div>
                 </div>
               </Transition>
             </section>
@@ -64,6 +68,7 @@ const editing = ref(false)
 const tabs = [
   // { key: 'Leads', label: 'Leads' },
   { key: 'Companies', label: 'Companies' },
+  { key: 'changePassword', label: 'Change Password' },
 ]
 
 const tab = ref('Companies')
